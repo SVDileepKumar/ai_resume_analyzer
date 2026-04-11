@@ -9,9 +9,11 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError
+import re as _re
 
-from app.config import ENABLE_LLM_EXPERIENCE
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
+from app.config import ENABLE_LLM_EXPERIENCE, JD_MAX_CHARS_LLM, RESUME_MAX_CHARS_LLM
 from app.services.llm_service import ai_enabled, _chat_json, _parse_model
 
 logger = logging.getLogger(__name__)
@@ -21,19 +23,44 @@ logger = logging.getLogger(__name__)
 # Pydantic Models
 # ---------------------------------------------------------------------------
 
+def _parse_years(v: object) -> float:
+    """Parse year values from LLM output — handles floats, '9+', '5.5', etc."""
+    if isinstance(v, (int, float)):
+        return float(v)
+    s = str(v).strip()
+    # Strip trailing '+', '~', spaces and extract first numeric part
+    s = _re.sub(r"[+~\s].*$", "", s)
+    try:
+        return float(s)
+    except ValueError:
+        return 0.0
+
+
 class ExperienceAnalysis(BaseModel):
     """Structured analysis of candidate experience relevance."""
     relevance_score: float = Field(
         description="0-100 score for JD relevance"
     )
-    total_years: int = Field(
-        default=0,
+    total_years: float = Field(
+        default=0.0,
         description="Total years of professional experience"
     )
-    relevant_years: int = Field(
-        default=0,
+    relevant_years: float = Field(
+        default=0.0,
         description="Years directly relevant to this JD"
     )
+
+    @field_validator("total_years", "relevant_years", mode="before")
+    @classmethod
+    def _coerce_years(cls, v: object) -> float:
+        return _parse_years(v)
+
+    @field_validator("relevance_score", mode="before")
+    @classmethod
+    def _coerce_relevance(cls, v: object) -> float:
+        if isinstance(v, (int, float)):
+            return float(v)
+        return float(str(v).replace("%", "").strip().split()[0])
     career_progression: str = Field(
         default="mixed",
         description="One of: ascending, lateral, descending, mixed"
@@ -108,10 +135,10 @@ async def analyze_experience_relevance(
     prompt = f"""Analyze the candidate's work experience for relevance to this specific job.
 
 ## Job Description
-{jd_text[:2000]}
+{jd_text[:JD_MAX_CHARS_LLM]}
 
 ## Resume
-{resume_text[:3500]}
+{resume_text}
 
 ## Analysis Required
 
@@ -159,6 +186,9 @@ Respond with valid JSON only."""
 
     data = await _chat_json(_EXPERIENCE_ANALYZER_SYSTEM, prompt, schema)
     if data is None:
+        return None
+    if not isinstance(data, dict) or "relevance_score" not in data:
+        logger.warning("Experience analysis LLM returned empty or incomplete payload")
         return None
 
     return _parse_model(ExperienceAnalysis, data)

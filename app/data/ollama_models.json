@@ -1,0 +1,191 @@
+{
+  "schema_version": 2,
+  "defaults": {
+    "chat_model": "qwen3.5:2b",
+    "embed_model": "qwen3-embedding:0.6b"
+  },
+  "models": [
+    {
+      "id": "qwen3.5:2b",
+      "label": "Qwen 3.5 2B (recommended default, 8GB+)",
+      "ollama_size_gb": 2.7,
+      "min_ram_gb": 4,
+      "tier": "fast",
+      "generation": 3,
+      "context_window": 256000,
+      "benchmarks": {"tau2": 48.8, "mmlu_pro": 66.5},
+      "json_reliability_note": "Excellent tool-use and structured JSON output. Strong agent benchmark (TAU2: 48.8).",
+      "description": "Best 2B model for structured resume analysis. 2.7GB leaves plenty of RAM for the embedding model.",
+      "best_for": "8GB RAM default — pairs with qwen3-embedding:0.6b (3.3GB total). 256K context."
+    },
+    {
+      "id": "qwen3.5:4b",
+      "label": "Qwen 3.5 4B (10GB+ recommended default)",
+      "ollama_size_gb": 3.4,
+      "min_ram_gb": 6,
+      "tier": "balanced",
+      "generation": 3,
+      "context_window": 256000,
+      "benchmarks": {"tau2": 79.9, "mmlu_pro": 79.1, "gpqa": 76.2},
+      "json_reliability_note": "Dominant benchmark winner at 4B class. TAU2 79.9 vs gemma4:e4b 42.2 (+38pts).",
+      "description": "Best 4B model overall: dominates structured task benchmarks. Fits 10GB+ with embed model.",
+      "best_for": "10GB RAM — pairs with snowflake-arctic-embed2 or qwen3-embedding:0.6b (4.0-4.6GB total)."
+    },
+    {
+      "id": "qwen3.5:9b",
+      "label": "Qwen 3.5 9B (16GB quality tier)",
+      "ollama_size_gb": 6.6,
+      "min_ram_gb": 10,
+      "tier": "quality",
+      "generation": 3,
+      "context_window": 256000,
+      "benchmarks": {},
+      "json_reliability_note": "Strong all-rounder; default 'qwen3.5:latest' tag resolves to this size.",
+      "description": "Quality tier for 16GB machines. Significantly stronger than 4B for edge-case resumes.",
+      "best_for": "16GB RAM — pairs with qwen3-embedding:4b (9.1GB total)."
+    },
+    {
+      "id": "gemma4:e2b",
+      "label": "Gemma 4 E2B (multilingual / audio, 10GB+)",
+      "ollama_size_gb": 7.2,
+      "min_ram_gb": 10,
+      "tier": "balanced",
+      "generation": 4,
+      "context_window": 128000,
+      "benchmarks": {"tau2": 24.5, "mmlu_pro": 60.0},
+      "json_reliability_note": "Good multilingual output; lower TAU2 agent score than qwen3.5:2b. 7.2GB model — needs 10GB+ to co-load with an embedding model.",
+      "description": "Google's edge model. Best for audio+vision capabilities. 7.2GB runtime size requires 10GB+ RAM to safely pair with an embedding model.",
+      "best_for": "10GB+ RAM when you specifically want Google's multimodal model. For 8GB use qwen3.5:2b (2.7GB) instead."
+    },
+    {
+      "id": "nemotron-3-nano:4b",
+      "label": "Nemotron 3 Nano 4B (NVIDIA, thinking+tools)",
+      "ollama_size_gb": 2.8,
+      "min_ram_gb": 4,
+      "tier": "fast",
+      "generation": 3,
+      "context_window": 256000,
+      "benchmarks": {},
+      "json_reliability_note": "NVIDIA hybrid MoE with thinking and tools. Alternative to qwen3.5:2b.",
+      "description": "NVIDIA's efficient MoE model with configurable thinking mode. 3.5B active params.",
+      "best_for": "Alternative 8GB option. 2.8GB pairs safely with any embedding model."
+    },
+    {
+      "id": "gemma4:26b",
+      "label": "Gemma 4 26B MoE (24GB workstation)",
+      "ollama_size_gb": 18.0,
+      "min_ram_gb": 20,
+      "tier": "quality",
+      "generation": 4,
+      "context_window": 256000,
+      "benchmarks": {"tau2": 68.2, "mmlu_pro": 82.6, "gpqa": 82.3},
+      "json_reliability_note": "Google MoE flagship. 3.8B active params at runtime. Audio + vision.",
+      "description": "26B MoE with 3.8B active params. Strong structured task results at frontier scale.",
+      "best_for": "24GB workstation — pairs with qwen3-embedding:4b (20.5GB total)."
+    },
+    {
+      "id": "gemma4:31b",
+      "label": "Gemma 4 31B Dense (32GB best quality)",
+      "ollama_size_gb": 20.0,
+      "min_ram_gb": 22,
+      "tier": "quality",
+      "generation": 4,
+      "context_window": 256000,
+      "benchmarks": {"tau2": 76.9, "mmlu_pro": 85.2, "gpqa": 84.3},
+      "json_reliability_note": "Arena AI #3 open model. Best assistant quality at 31B dense.",
+      "description": "Google's flagship dense model. Highest chat quality and reasoning at this tier.",
+      "best_for": "32GB — pairs with qwen3-embedding:8b (24.7GB total)."
+    },
+    {
+      "id": "lfm2:24b",
+      "label": "LFM2 24B-A2B (16GB, ultra-fast MoE)",
+      "ollama_size_gb": 14.0,
+      "min_ram_gb": 16,
+      "tier": "quality",
+      "generation": 3,
+      "context_window": 32000,
+      "benchmarks": {},
+      "json_reliability_note": "Liquid AI hybrid: 2B active params, 112 tok/s on CPU. Tools supported.",
+      "description": "Extremely efficient MoE. 24B total / 2B active. Fastest inference on CPU at this quality level.",
+      "best_for": "16GB with speed priority. Note: 32K context (shorter than other models)."
+    },
+    {
+      "id": "llama3.2:3b",
+      "label": "Llama 3.2 3B (widely installed fallback)",
+      "ollama_size_gb": 2.0,
+      "min_ram_gb": 4,
+      "tier": "fast",
+      "generation": 2,
+      "context_window": 128000,
+      "benchmarks": {},
+      "json_reliability_note": "Good tools support. Smaller JSON outputs may need retries on complex prompts.",
+      "description": "Meta's small multilingual model. Very widely installed — good fallback.",
+      "best_for": "Fallback when qwen3.5:2b is unavailable. Already installed on most machines."
+    },
+    {
+      "id": "phi4-mini",
+      "label": "Phi-4 Mini (Microsoft, MIT license)",
+      "ollama_size_gb": 2.5,
+      "min_ram_gb": 4,
+      "tier": "fast",
+      "generation": 2,
+      "context_window": 128000,
+      "benchmarks": {"mmlu_pro": 52.8},
+      "json_reliability_note": "MIT license. Good reasoning density. Lower than qwen3.5 on agent benchmarks.",
+      "description": "Microsoft's compact model with MIT license. Reasoning-focused.",
+      "best_for": "MIT-licensed deployments, math reasoning. Use qwen3.5:2b for higher structured output quality."
+    }
+  ],
+  "embed_models": [
+    {
+      "id": "qwen3-embedding:0.6b",
+      "label": "Qwen3 Embedding 0.6B (8GB default)",
+      "ollama_size_gb": 0.639,
+      "min_ram_gb": 1,
+      "context_window": 32000,
+      "benchmarks": {"mteb_multilingual": "strong"},
+      "description": "639MB, 32K context window. Pairs perfectly with qwen3.5:2b for 3.3GB total on 8GB machines.",
+      "best_for": "Default embedding model for all RAM tiers. Full resume + JD text fits in one call."
+    },
+    {
+      "id": "embeddinggemma",
+      "label": "EmbeddingGemma 300M (Gemma family, 2K ctx)",
+      "ollama_size_gb": 0.622,
+      "min_ram_gb": 1,
+      "context_window": 2000,
+      "benchmarks": {"mteb": "best <500M"},
+      "description": "Google's 300M QAT embedding model. Best <500M on MTEB. NOTE: 2K context may truncate long resumes.",
+      "best_for": "Gemma family pairing (gemma4:e2b). Slightly smaller than qwen3-embedding:0.6b but shorter context."
+    },
+    {
+      "id": "snowflake-arctic-embed2",
+      "label": "Snowflake Arctic Embed 2 (8K context, highest BEIR)",
+      "ollama_size_gb": 1.2,
+      "min_ram_gb": 2,
+      "context_window": 8000,
+      "benchmarks": {"beir": 55.4},
+      "description": "568M params, Apache 2.0. Highest BEIR score among sub-1GB models. Good 8K context for long resumes.",
+      "best_for": "10GB+ tier. Best retrieval quality at ~1GB size."
+    },
+    {
+      "id": "qwen3-embedding:4b",
+      "label": "Qwen3 Embedding 4B (16GB, MTEB top-tier)",
+      "ollama_size_gb": 2.5,
+      "min_ram_gb": 4,
+      "context_window": 40000,
+      "benchmarks": {"mteb_multilingual": 70.58},
+      "description": "2.5GB, 40K context. Best quality below 8B. MTEB score 70.58 (same as 8B).",
+      "best_for": "16GB RAM — pairs with qwen3.5:9b (9.1GB total)."
+    },
+    {
+      "id": "qwen3-embedding:8b",
+      "label": "Qwen3 Embedding 8B (24GB+ maximum quality)",
+      "ollama_size_gb": 4.7,
+      "min_ram_gb": 6,
+      "context_window": 40000,
+      "benchmarks": {"mteb_multilingual": 70.58},
+      "description": "4.7GB, 40K context. #1 MTEB multilingual leaderboard. Maximum quality.",
+      "best_for": "24GB+ only — pairs with gemma4:26b or qwen3.5:27b."
+    }
+  ]
+}

@@ -11,7 +11,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
 
-from app.config import ENABLE_RED_FLAG_DETECTION
+from app.config import ENABLE_RED_FLAG_DETECTION, JD_MAX_CHARS_LLM, RESUME_MAX_CHARS_LLM
 from app.services.llm_service import ai_enabled, _chat_json, _parse_model
 
 logger = logging.getLogger(__name__)
@@ -130,10 +130,10 @@ async def detect_red_flags(
     prompt = f"""Analyze this resume for red flags and concerning patterns.
 
 ## Job Description (context)
-{jd_text[:1500]}
+{jd_text[:JD_MAX_CHARS_LLM]}
 
 ## Resume
-{resume_text[:4000]}
+{resume_text}
 
 ## RED FLAGS TO DETECT
 

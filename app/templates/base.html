@@ -6,58 +6,63 @@
   <meta name="description" content="AI-powered ATS Resume Analyzer — Score, rank, and shortlist candidates instantly." />
   <title>{% block title %}ATS Resume Analyzer{% endblock %}</title>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: ['selector', '[data-theme="dark"]'],
-      theme: {
-        extend: {
-          colors: {
-            walmart: {
-              blue: '#0053e2',
-              'blue-hover': '#0046c0',
-              'blue-pressed': '#003a9e',
-              spark: '#ffc220',
-              'spark-dark': '#995213',
-            },
-            success: '#2a8703',
-            danger: '#ea1100',
-            warning: '#995213',
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-        },
-      },
-    }
-  </script>
-
-  <!-- Inter + JetBrains Mono fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
-
-  <!-- HTMX -->
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-
-  <!-- Alpine.js (for form state only) -->
-  <script defer src="https://unpkg.com/alpinejs@3.14.3/dist/cdn.min.js"></script>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-
-  <!-- Custom styles -->
-  <link rel="stylesheet" href="/static/css/app.css" />
-
-  <!-- Dark mode init (prevent flash) -->
+  <!-- Dark mode init (prevent flash) — before any CSS -->
   <script>
     (function() {
       const saved = localStorage.getItem('ats-theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (saved === 'dark' || (!saved && prefersDark)) {
         document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.style.backgroundColor = '#0c1222';
+      } else {
+        document.documentElement.style.backgroundColor = '#f5f7fa';
+      }
+    })();
+  </script>
+
+  <!--
+    Blocking stylesheets: parser waits for these before body paint, so layout is not
+    built with missing Tailwind/app rules. Run `npm run build:css` after template changes.
+    Fonts are self-hosted (fonts.css); no Google Fonts at runtime.
+  -->
+  <link rel="stylesheet" href="/static/css/fonts.css" />
+  <link rel="stylesheet" href="/static/css/tailwind.css" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+
+  <!-- Hide main/footer until window load (CSS + deferred JS + webfonts); fallback timeout -->
+  <style>
+    html.ats-booting #main-content,
+    html.ats-booting footer {
+      opacity: 0;
+      pointer-events: none;
+    }
+    html.ats-ready #main-content,
+    html.ats-ready footer {
+      opacity: 1;
+      transition: opacity 0.2s ease-out;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html.ats-ready #main-content,
+      html.ats-ready footer {
+        transition: none;
+      }
+    }
+  </style>
+  <script>
+    (function () {
+      document.documentElement.classList.add('ats-booting');
+      var done = false;
+      function reveal() {
+        if (done) return;
+        done = true;
+        document.documentElement.classList.remove('ats-booting');
+        document.documentElement.classList.add('ats-ready');
+      }
+      if (document.readyState === 'complete') {
+        reveal();
+      } else {
+        window.addEventListener('load', reveal, { once: true });
+        setTimeout(reveal, 6000);
       }
     })();
   </script>
@@ -65,24 +70,23 @@
 <body class="font-sans antialiased min-h-screen transition-colors duration-300" x-data="{ mobileNav: false }">
 
   <!-- Skip link (WCAG 2.2) -->
-  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] bg-walmart-blue text-white px-4 py-2 rounded-lg font-semibold">
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] bg-brand-blue text-white px-4 py-2 rounded-lg font-semibold">
     Skip to main content
   </a>
 
   <!-- Navigation — Glass morphism -->
   <nav class="nav-glass sticky top-0 z-40" role="navigation" aria-label="Main navigation">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <a href="/" class="flex items-center gap-3 group" aria-label="ATS Resume Analyzer Home">
-          <div class="w-9 h-9 bg-walmart-blue rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
+          <div class="w-9 h-9 bg-brand-blue rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
           <div>
             <span class="text-lg font-bold" style="color: var(--text-primary)">ATS Analyzer</span>
-            <span class="hidden sm:inline text-xs ml-2 font-mono" style="color: var(--text-tertiary)">v2.0</span>
           </div>
         </a>
 
@@ -136,8 +140,8 @@
       </div>
     </div>
 
-    <!-- Mobile menu -->
-    <div x-show="mobileNav" x-transition.origin.top class="md:hidden border-t" style="border-color: var(--border-light); background: var(--surface-primary)">
+    <!-- Mobile menu (x-cloak: hidden until Alpine loads; avoids flash before deferred script) -->
+    <div x-cloak x-show="mobileNav" x-transition.origin.top class="md:hidden border-t" style="border-color: var(--border-light); background: var(--surface-primary)">
       <div class="px-4 py-3 space-y-1">
         <a href="/" class="mobile-nav-link">Dashboard</a>
         <a href="/analyze" class="mobile-nav-link">Analyze Resumes</a>
@@ -147,24 +151,24 @@
   </nav>
 
   <!-- Main content -->
-  <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main id="main-content" class="w-full mx-auto min-w-0 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-8">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer -->
-  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8">
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6" style="border-top: 1px solid var(--border-light)">
-      <p class="text-xs" style="color: var(--text-tertiary)">ATS Resume Analyzer • Built with FastAPI + HTMX + Tailwind</p>
-      <div class="flex items-center gap-4">
-        <span class="text-xs font-mono" style="color: var(--text-tertiary)">v2.0.0</span>
-      </div>
+  <footer class="w-full mx-auto min-w-0 px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-8 mt-8">
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6" style="border-top: 1px solid var(--border-light)">
+      <p class="text-xs text-center" style="color: var(--text-tertiary)">ATS Resume Analyzer • Built with FastAPI + HTMX + Tailwind</p>
     </div>
   </footer>
 
   <!-- Toast container -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3" aria-live="polite"></div>
 
-  <!-- Scripts -->
+  <!-- Vendor scripts (local, end of body — after DOM; Alpine/Chart deferred) -->
+  <script src="/static/vendor/htmx-2.0.4.min.js"></script>
+  <script defer src="/static/vendor/alpine-3.14.3.min.js"></script>
+  <script defer src="/static/vendor/chart-4.4.7.umd.min.js"></script>
   <script src="/static/js/app.js"></script>
 </body>
 </html>

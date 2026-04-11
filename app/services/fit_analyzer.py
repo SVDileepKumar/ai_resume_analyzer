@@ -11,7 +11,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
 
-from app.config import ENABLE_MULTI_DIM_FIT
+from app.config import ENABLE_MULTI_DIM_FIT, JD_MAX_CHARS_LLM, RESUME_MAX_CHARS_LLM
 from app.services.llm_service import ai_enabled, _chat_json, _parse_model
 
 logger = logging.getLogger(__name__)
@@ -145,10 +145,10 @@ async def analyze_candidate_fit(
     prompt = f"""Evaluate this candidate{role_context}. Provide comprehensive fit analysis.
 
 ## Job Description
-{jd_text[:2000]}
+{jd_text[:JD_MAX_CHARS_LLM]}
 
 ## Candidate Resume
-{resume_text[:3000]}
+{resume_text}
 
 ## Analysis Dimensions (score each 0-100)
 

@@ -1,20 +1,23 @@
 {% extends "base.html" %} {% block title %}Analyze Resumes — ATS Resume
 Analyzer{% endblock %} {% block nav_analyze %}nav-link-active{% endblock %} {%
 block aria_analyze %}page{% endblock %} {% block content %}
-<div class="max-w-4xl mx-auto">
+<div class="w-full min-w-0 max-w-none mx-auto">
+  {% include "partials/jd_templates_bootstrap.html" %}
   <!-- Page Header -->
-  <div class="mb-8 animate-fade-in">
-    <h1 class="text-3xl font-bold" style="color: var(--text-primary)">
-      Analyze Resumes
-    </h1>
-    <p class="mt-2" style="color: var(--text-tertiary)">
-      Upload resumes and compare them against a job description
-    </p>
+  <div class="mb-8 animate-fade-in flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+    <div class="min-w-0">
+      <h1 class="text-2xl sm:text-3xl font-bold" style="color: var(--text-primary)">
+        Analyze Resumes
+      </h1>
+      <p class="mt-2 text-sm sm:text-base max-w-prose" style="color: var(--text-tertiary)">
+        Compare, rank, and shortlist candidates against one job description—built for hiring teams
+      </p>
+    </div>
   </div>
 
   <!-- Progress Stepper -->
-  <div class="mb-10 animate-fade-in">
-    <div class="flex items-center gap-0 px-4">
+  <div class="mb-10 animate-fade-in w-full min-w-0">
+    <div class="flex items-center w-full min-w-0 gap-1 sm:gap-0">
       <div class="flex items-center gap-2">
         <div class="step-number" id="step-indicator-1">1</div>
         <span
@@ -56,8 +59,198 @@ block aria_analyze %}page{% endblock %} {% block content %}
     x-effect="updateSteps(role, jd, files, jdMode, jdFile)"
     @submit.prevent="submitForm()"
   >
+    <!-- AI model — first: choose model before role, JD, and resumes -->
+    <div class="card animate-fade-in-up" style="animation-delay: 100ms" x-show="llmOptionsLoaded">
+      <div class="flex items-start gap-3 mb-5">
+        <div class="step-number" style="opacity: 0.85">AI</div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-semibold tracking-tight" style="color: var(--text-primary)">
+            AI model
+          </h2>
+          <p class="lm-model-lede">
+            Tap a preset for most setups. Open <strong class="font-medium" style="color: var(--text-primary)">More models</strong> only if you need a specific tag.
+          </p>
+          <details class="lm-footnote-details mt-3">
+            <summary class="outline-none focus-visible:ring-2 rounded" style="--tw-ring-color: rgba(0, 83, 226, 0.35)">Hosting, RAM, and billing notes</summary>
+            <div class="mt-2 space-y-2 text-xs leading-relaxed" style="color: var(--text-tertiary)">
+              <p x-show="ramDisclaimer" x-text="ramDisclaimer"></p>
+              <p x-show="llmBackend === 'ollama' && downloadOnceNote" x-text="downloadOnceNote"></p>
+              <p x-show="llmBackend === 'openai'">
+                Uses an OpenAI-compatible API. Set <code class="font-mono text-[11px]">OPENAI_API_KEY</code> or the optional fields below. Usage is billed per token; large batches cost more.
+              </p>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div class="space-y-5 lm-model-card-inner">
+        <div>
+          <p class="lm-section-eyebrow">Quick picks</p>
+          <div class="lm-preset-stack">
+            <button
+              type="button"
+              class="lm-shortcut-row lm-shortcut-row-featured"
+              :class="{ 'lm-shortcut-row-active': recommendedModel && selectedChatModel === recommendedModel }"
+              @click="recommendedModel && (selectedChatModel = recommendedModel)"
+              :disabled="!recommendedModel"
+            >
+              <div class="min-w-0 flex-1">
+                <span class="lm-shortcut-kicker">Recommended</span>
+                <span class="lm-shortcut-title" x-text="_modelDisplayNameForId(recommendedModel) || '—'"></span>
+                <code class="lm-shortcut-id" x-text="recommendedModel || ''"></code>
+                <span class="lm-shortcut-sub">Best default for this server’s memory and catalog.</span>
+              </div>
+            </button>
+            <div class="lm-preset-grid-3">
+              <button
+                type="button"
+                class="lm-shortcut-row"
+                :class="{ 'lm-shortcut-row-active': tierPicks.fast && selectedChatModel === tierPicks.fast }"
+                @click="tierPicks.fast && (selectedChatModel = tierPicks.fast)"
+                :disabled="!tierPicks.fast"
+              >
+                <div class="min-w-0 flex-1">
+                  <span class="lm-shortcut-kicker">Fast</span>
+                  <span class="lm-shortcut-title" x-text="_modelDisplayNameForId(tierPicks.fast) || '—'"></span>
+                  <code class="lm-shortcut-id" x-show="tierPicks.fast" x-text="tierPicks.fast"></code>
+                  <span class="lm-shortcut-sub">Lightweight; quickest responses.</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                class="lm-shortcut-row"
+                :class="{ 'lm-shortcut-row-active': tierPicks.balanced && selectedChatModel === tierPicks.balanced }"
+                @click="tierPicks.balanced && (selectedChatModel = tierPicks.balanced)"
+                :disabled="!tierPicks.balanced"
+              >
+                <div class="min-w-0 flex-1">
+                  <span class="lm-shortcut-kicker">Balanced</span>
+                  <span class="lm-shortcut-title" x-text="_modelDisplayNameForId(tierPicks.balanced) || '—'"></span>
+                  <code class="lm-shortcut-id" x-show="tierPicks.balanced" x-text="tierPicks.balanced"></code>
+                  <span class="lm-shortcut-sub">Solid quality for typical resumes.</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                class="lm-shortcut-row"
+                :class="{ 'lm-shortcut-row-active': tierPicks.quality && selectedChatModel === tierPicks.quality }"
+                @click="tierPicks.quality && (selectedChatModel = tierPicks.quality)"
+                :disabled="!tierPicks.quality"
+              >
+                <div class="min-w-0 flex-1">
+                  <span class="lm-shortcut-kicker">Best quality</span>
+                  <span class="lm-shortcut-title" x-text="_modelDisplayNameForId(tierPicks.quality) || '—'"></span>
+                  <code class="lm-shortcut-id" x-show="tierPicks.quality" x-text="tierPicks.quality"></code>
+                  <span class="lm-shortcut-sub">Strongest output when RAM allows.</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lm-model-detail-panel" x-show="selectedChatModel" x-cloak>
+          <div class="lm-model-detail-header">
+            <div class="min-w-0 flex-1">
+              <p class="lm-selection-summary-title" x-text="_modelDisplayNameForId(selectedChatModel)"></p>
+              <p class="lm-selection-summary-id" x-text="selectedChatModel"></p>
+              <p class="text-xs mt-1" style="color: var(--text-tertiary)">
+                <span x-text="_tierLabelShort(_selectedModelMeta()?.tier)"></span>
+              </p>
+            </div>
+            <span
+              x-show="_selectedModelStateLabel()"
+              class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold shrink-0"
+              :style="_selectedModelBadgeStyle()"
+              x-text="_selectedModelStateLabel()"
+            ></span>
+          </div>
+          <div class="lm-model-detail-body text-sm space-y-3">
+            <div class="min-w-0" x-show="_selectedModelMeta()">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.12em]" style="color: var(--text-tertiary)">Catalog entry</p>
+              <p class="mt-1 font-medium" style="color: var(--text-primary)" x-text="_selectedModelMeta()?.label || ''"></p>
+            </div>
+
+            <p
+              class="text-xs leading-relaxed"
+              style="color: var(--text-tertiary)"
+              x-show="selectedChatModel && !_selectedModelMeta()"
+            >
+              No catalog metadata for this tag; the server will still use it if Ollama has it installed.
+            </p>
+
+            <div
+              x-show="selectedChatModel === recommendedModel && recommendationReason"
+              class="rounded-lg p-3 text-xs leading-relaxed"
+              style="background: var(--surface-primary); border: 1px solid var(--border-light); color: var(--text-secondary)"
+            >
+              <span class="font-semibold" style="color: var(--text-primary)">Why “Recommended”</span>
+              <p class="mt-1" x-text="recommendationReason"></p>
+              <span
+                class="inline-flex items-center rounded-full px-2 py-0.5 mt-2 text-[10px] font-semibold"
+                style="background: var(--brand-blue-subtle); color: var(--brand-blue);"
+                x-show="recommendedModel && chatModels.find((m) => m.id === recommendedModel)?.installed === false && llmBackend === 'ollama'"
+              >One-time download if missing</span>
+            </div>
+
+            <div
+              x-show="_recommendedLegacySelected()"
+              class="rounded-lg p-3 text-xs leading-relaxed"
+              style="background: var(--surface-primary); border: 1px solid #f59e0b; color: var(--text-secondary)"
+            >
+              <span class="font-semibold" style="color: #b45309">Legacy model</span>
+              <p class="mt-1">Prefer a newer default? Use <strong>Balanced</strong> or <strong>Best quality</strong>, or pick a <strong>Gemma 4</strong> tag under More models if RAM allows.</p>
+            </div>
+
+            <p class="leading-relaxed" style="color: var(--text-primary)" x-show="_selectedModelMeta()?.description" x-text="_selectedModelMeta()?.description || ''"></p>
+            <p class="text-xs" style="color: var(--text-tertiary)" x-show="_selectedModelMeta()">
+              <span class="font-medium" style="color: var(--text-secondary)">Best for:</span>
+              <span x-text="_selectedModelMeta()?.best_for || _selectedModelMeta()?.json_reliability_note || _selectedModelMeta()?.notes || '—'"></span>
+            </p>
+            <p class="text-xs" style="color: var(--text-tertiary)" x-show="llmBackend === 'ollama' && _selectedModelMeta()?.min_ram_gb">
+              Rough memory target:
+              <span class="font-mono" x-text="'about ' + _selectedModelMeta().min_ram_gb + ' GB RAM'"></span>
+            </p>
+          </div>
+        </div>
+
+        <details class="lm-details-disclosure">
+          <summary>More models</summary>
+          <div class="lm-details-body space-y-3 pt-3">
+            <p id="chat-model-help" class="text-xs leading-relaxed" style="color: var(--text-tertiary)">
+              Every tag in the server catalog. Names are shortened in the list; the full description appears above as soon as you pick a model.
+            </p>
+            <div>
+              <label class="block text-sm font-medium mb-1.5" style="color: var(--text-secondary)" for="chat-model-select">Model</label>
+              <select
+                id="chat-model-select"
+                name="chat_model"
+                class="input-text w-full lm-model-select rounded-xl"
+                x-model="selectedChatModel"
+                aria-describedby="chat-model-help"
+                style="color: var(--text-primary); background: var(--surface-secondary); border-color: var(--border-light)"
+              >
+                <template x-for="m in _modelsPickerList()" :key="m.id">
+                  <option :value="m.id" x-text="_selectOptionLabel(m)"></option>
+                </template>
+              </select>
+            </div>
+          </div>
+        </details>
+        <div x-show="hostedUiEnabled" class="space-y-2 pt-2 border-t" style="border-color: var(--border-light)">
+          <p class="text-xs" style="color: var(--text-tertiary)">
+            Optional API key for this request (prefer <code class="font-mono">OPENAI_API_KEY</code> in production).
+            Hosted APIs bill per token — large batches can be costly.
+          </p>
+          <label class="block text-sm font-medium" style="color: var(--text-secondary)" for="openai-base-url">API base URL</label>
+          <input id="openai-base-url" type="text" class="input-text w-full font-mono text-sm" x-model="openaiBaseUrl" placeholder="https://api.openai.com/v1" autocomplete="off" />
+          <label class="block text-sm font-medium" style="color: var(--text-secondary)" for="openai-api-key">API key</label>
+          <input id="openai-api-key" type="password" class="input-text w-full font-mono text-sm" x-model="openaiApiKey" placeholder="sk-…" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+
     <!-- Step 1: Role Selection (Optional) -->
-    <div class="card animate-fade-in-up" style="animation-delay: 100ms">
+    <div class="card animate-fade-in-up" style="animation-delay: 150ms">
       <div class="flex items-center gap-3 mb-5">
         <div class="step-number">1</div>
         <div>
@@ -127,7 +320,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
             type="button"
             x-show="role && jdTemplates[role]"
             @click="jd = jdTemplates[role]"
-            class="btn-ghost text-walmart-blue text-xs font-semibold"
+            class="btn-ghost text-brand-blue text-xs font-semibold"
             title="Fill with a sample JD for this role"
           >
             <svg
@@ -163,6 +356,17 @@ block aria_analyze %}page{% endblock %} {% block content %}
             </span>
           </div>
         </div>
+      </div>
+
+      <div
+        class="rounded-xl p-3 mb-4 text-xs leading-relaxed"
+        style="background: var(--surface-secondary); border: 1px solid var(--border-light); color: var(--text-secondary)"
+      >
+        <p class="font-semibold" style="color: var(--text-primary)">Reference job descriptions</p>
+        <p class="mt-1">
+          Each template is a full, realistic posting for that role (generic employer) so keyword and structure match what you see on real boards. Replace with your own JD anytime.
+          <span x-show="!role" class="font-medium" style="color: var(--text-primary)">Choose a role in step 1 to unlock “Use template.”</span>
+        </p>
       </div>
 
       <!-- JD Mode Toggle -->
@@ -236,14 +440,14 @@ block aria_analyze %}page{% endblock %} {% block content %}
           <div class="text-center">
             <div
               class="mx-auto w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-              style="background: var(--wm-blue-subtle)"
+              style="background: var(--brand-blue-subtle)"
             >
-              <svg class="w-5 h-5 text-walmart-blue" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-brand-blue" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
               </svg>
             </div>
             <p class="text-sm font-medium" style="color: var(--text-primary)">
-              Drop JD file here or <span class="text-walmart-blue font-semibold">browse</span>
+              Drop JD file here or <span class="text-brand-blue font-semibold">browse</span>
             </p>
             <p class="text-xs mt-1" style="color: var(--text-tertiary)">PDF or DOCX • Single file</p>
           </div>
@@ -328,7 +532,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
         <template x-if="files.length > 0">
           <span
             class="text-xs font-mono px-2 py-1 rounded-md"
-            style="background: var(--wm-blue-subtle); color: var(--wm-blue)"
+            style="background: var(--brand-blue-subtle); color: var(--brand-blue)"
           >
             <span x-text="files.length"></span> file(s)
           </span>
@@ -361,10 +565,10 @@ block aria_analyze %}page{% endblock %} {% block content %}
         <div class="text-center">
           <div
             class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style="background: var(--wm-blue-subtle)"
+            style="background: var(--brand-blue-subtle)"
           >
             <svg
-              class="w-7 h-7 text-walmart-blue"
+              class="w-7 h-7 text-brand-blue"
               fill="none"
               stroke="currentColor"
               stroke-width="1.5"
@@ -379,7 +583,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
           </div>
           <p class="font-medium" style="color: var(--text-primary)">
             Drop resumes here or
-            <span class="text-walmart-blue font-semibold">browse</span>
+            <span class="text-brand-blue font-semibold">browse</span>
           </p>
           <p class="text-sm mt-1" style="color: var(--text-tertiary)">
             PDF, DOCX • Max 10MB each • Up to 50 files
@@ -398,10 +602,18 @@ block aria_analyze %}page{% endblock %} {% block content %}
               <template x-if="phase === 'idle'">
                 <span x-text="files.length + ' file(s) selected'"></span>
               </template>
+              <template x-if="phase === 'downloading'">
+                <span class="flex items-center gap-2">
+                  <span
+                    class="inline-block w-3 h-3 border-2 border-brand-blue border-t-transparent rounded-full animate-spin"
+                  ></span>
+                  Downloading model…
+                </span>
+              </template>
               <template x-if="phase === 'uploading'">
                 <span class="flex items-center gap-2">
                   <span
-                    class="inline-block w-3 h-3 border-2 border-walmart-blue border-t-transparent rounded-full animate-spin"
+                    class="inline-block w-3 h-3 border-2 border-brand-blue border-t-transparent rounded-full animate-spin"
                   ></span>
                   Uploading…
                 </span>
@@ -409,7 +621,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
               <template x-if="phase === 'analyzing'">
                 <span class="flex items-center gap-2">
                   <span
-                    class="inline-block w-3 h-3 border-2 border-walmart-blue border-t-transparent rounded-full animate-spin"
+                    class="inline-block w-3 h-3 border-2 border-brand-blue border-t-transparent rounded-full animate-spin"
                   ></span>
                   Analyzing…
                 </span>
@@ -510,12 +722,12 @@ block aria_analyze %}page{% endblock %} {% block content %}
                     <!-- Status label -->
                     <span
                       x-show="f.status === 'uploading'"
-                      class="text-[10px] font-bold uppercase tracking-wider text-walmart-blue"
+                      class="text-[10px] font-bold uppercase tracking-wider text-brand-blue"
                       >Uploading</span
                     >
                     <span
                       x-show="f.status === 'analyzing'"
-                      class="text-[10px] font-bold uppercase tracking-wider text-walmart-blue"
+                      class="text-[10px] font-bold uppercase tracking-wider text-brand-blue"
                       >Analyzing</span
                     >
                     <span
@@ -533,7 +745,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
                     <span
                       x-show="f.status === 'uploading' || f.status === 'done'"
                       class="text-xs font-mono font-semibold"
-                      :class="f.progress >= 100 ? 'text-success' : 'text-walmart-blue'"
+                      :class="f.progress >= 100 ? 'text-success' : 'text-brand-blue'"
                       x-text="Math.round(f.progress) + '%'"
                     ></span>
                   </div>
@@ -572,7 +784,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
               >
                 <div
                   class="h-full rounded-full transition-all duration-300 ease-out"
-                  :class="f.progress >= 100 ? 'bg-success' : 'bg-walmart-blue'"
+                  :class="f.progress >= 100 ? 'bg-success' : 'bg-brand-blue'"
                   :style="'width:' + f.progress + '%'"
                 ></div>
               </div>
@@ -589,6 +801,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
               class="text-sm font-semibold"
               style="color: var(--text-primary)"
             >
+              <span x-show="phase === 'downloading'">Downloading selected model…</span>
               <span x-show="phase === 'uploading'">Uploading files…</span>
               <span x-show="phase === 'analyzing'" class="flex items-center gap-2">
                 <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -598,7 +811,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
               </span>
             </span>
             <span
-              class="text-xs font-mono font-semibold text-walmart-blue"
+              class="text-xs font-mono font-semibold text-brand-blue"
               x-text="Math.round(overallProgress) + '%'"
             ></span>
           </div>
@@ -608,7 +821,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
           >
             <div
               class="h-full rounded-full transition-all duration-300 ease-out"
-              :class="phase === 'analyzing' ? 'progress-bar-pulse' : 'bg-walmart-blue'"
+              :class="phase === 'analyzing' || phase === 'downloading' ? 'progress-bar-pulse' : 'bg-brand-blue'"
               :style="'width:' + overallProgress + '%'"
             ></div>
           </div>
@@ -617,9 +830,14 @@ block aria_analyze %}page{% endblock %} {% block content %}
               x-show="phase === 'uploading'"
               x-text="uploadedCount + ' of ' + files.length + ' uploaded'"
             ></span>
+            <span x-show="phase === 'downloading'" class="flex items-center gap-2">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-brand-blue analysis-pulse-dot"></span>
+              <span x-text="analysisStage || 'Downloading model…'"></span>
+            </span>
             <span x-show="phase === 'analyzing'" class="flex items-center gap-2">
-              <span class="inline-block w-1.5 h-1.5 rounded-full bg-walmart-blue analysis-pulse-dot"></span>
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-brand-blue analysis-pulse-dot"></span>
               <span x-text="analysisStage || 'Analyzing...'"></span>
+              <span class="ml-auto font-mono" style="color: var(--text-tertiary)" x-text="elapsedSeconds >= 5 ? _formatElapsed(elapsedSeconds) : ''"></span>
             </span>
           </p>
         </div>
@@ -660,7 +878,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
               class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
             ></span>
             <span
-              x-text="phase === 'uploading' ? 'Uploading…' : 'Analyzing…'"
+              x-text="phase === 'downloading' ? 'Downloading model…' : (phase === 'uploading' ? 'Uploading…' : ('Analyzing ' + files.length + ' resume(s)… this may take a few minutes'))"
             ></span>
           </span>
         </template>
@@ -694,28 +912,268 @@ block aria_analyze %}page{% endblock %} {% block content %}
       files: [],
       fileStates: [],
       dragging: false,
-      phase: "idle", // 'idle' | 'uploading' | 'analyzing'
+      phase: "idle", // 'idle' | 'downloading' | 'uploading' | 'analyzing'
       overallProgress: 0,
       uploadedCount: 0,
       analysisStage: '',
+      elapsedSeconds: 0,
+      _elapsedTimer: null,
+      _analyzeTimer: null,
       jdTemplates: {},
+      llmBackend: "{{ llm_backend|default('ollama', true) }}",
+      llmOptionsLoaded: false,
+      chatModels: [],
+      tierPicks: { fast: null, balanced: null, quality: null },
+      recommendedModel: "",
+      recommendationReason: "",
+      downloadOnceNote: "",
+      selectedChatModel: "",
+      ramDisclaimer: "",
+      hostedUiEnabled: false,
+      openaiApiKey: "",
+      openaiBaseUrl: "",
 
-      analysisStages: [
-        { label: 'Uploading files…', min: 0, max: 90 },
-        { label: 'Parsing resumes…', min: 90, max: 93 },
-        { label: 'Extracting skills & matching…', min: 93, max: 96 },
-        { label: 'AI analysis & scoring…', min: 96, max: 99 },
-        { label: 'Finalizing results…', min: 99, max: 100 },
-      ],
+      _hydrateJdTemplates() {
+        const el = document.getElementById("jd-templates-data");
+        if (el && el.textContent && el.textContent.trim()) {
+          try {
+            const parsed = JSON.parse(el.textContent);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+              this.jdTemplates = parsed;
+              return;
+            }
+          } catch (e) {
+            console.warn("jd-templates-data parse failed", e);
+          }
+        }
+        fetch("/api/jd-templates")
+          .then((r) => {
+            if (!r.ok) throw new Error(String(r.status));
+            return r.json();
+          })
+          .then((data) => {
+            this.jdTemplates = data && typeof data === "object" ? data : {};
+          })
+          .catch((e) => {
+            console.warn("jd-templates fetch failed", e);
+          });
+      },
 
       init() {
-        // Load JD templates on mount
-        fetch("/api/jd-templates")
+        this._hydrateJdTemplates();
+        fetch("/api/llm/options")
           .then((r) => r.json())
-          .then((data) => {
-            this.jdTemplates = data;
+          .then((d) => {
+            this.chatModels = d.models || [];
+            this.tierPicks = d.tier_picks || { fast: null, balanced: null, quality: null };
+            this._normalizeTierPicks();
+            this.recommendedModel = d.recommended_model || d.default_chat_model || "";
+            this.recommendationReason = d.recommendation_reason || "";
+            this.downloadOnceNote = d.download_once_note || "";
+            this.selectedChatModel = d.recommended_model || d.default_chat_model || "";
+            this.ramDisclaimer = d.ram_disclaimer || "";
+            this.hostedUiEnabled = !!d.enable_hosted_llm_ui;
+            this.llmOptionsLoaded = true;
           })
-          .catch(() => {});
+          .catch(() => {
+            this.llmOptionsLoaded = true;
+          });
+      },
+
+      _appendLlmFields(fd) {
+        if (this.selectedChatModel) fd.append("chat_model", this.selectedChatModel);
+        if (this.hostedUiEnabled && this.openaiApiKey)
+          fd.append("openai_api_key", this.openaiApiKey);
+        if (this.hostedUiEnabled && this.openaiBaseUrl)
+          fd.append("openai_base_url", this.openaiBaseUrl);
+      },
+
+      _selectedModelMeta() {
+        return this.chatModels.find((m) => m.id === this.selectedChatModel) || null;
+      },
+
+      _normalizeTierPicks() {
+        const cur = this.tierPicks || {};
+        const firstForTier = (tier) => {
+          const list = this.chatModels || [];
+          const inTier = list.filter((m) => m.tier === tier);
+          const preferred = inTier.filter((m) => !m.deprecated);
+          const rows = preferred.length ? preferred : inTier;
+          return rows[0]?.id || null;
+        };
+        this.tierPicks = {
+          fast: cur.fast || firstForTier('fast'),
+          balanced: cur.balanced || firstForTier('balanced'),
+          quality: cur.quality || firstForTier('quality'),
+        };
+      },
+
+      _tierLabel(tier) {
+        const t = (tier || '').toLowerCase();
+        if (t === 'fast') return 'Fast tier';
+        if (t === 'balanced') return 'Balanced tier';
+        if (t === 'quality') return 'Quality tier';
+        return 'Catalog model';
+      },
+
+      _tierLabelShort(tier) {
+        const t = (tier || '').toLowerCase();
+        if (t === 'fast') return 'Fast profile';
+        if (t === 'balanced') return 'Balanced profile';
+        if (t === 'quality') return 'High quality';
+        return 'Custom pick';
+      },
+
+      _modelDisplayName(m) {
+        if (!m) return '';
+        const raw = String(m.label || m.id || '').trim();
+        const paren = raw.indexOf('(');
+        let name = paren > 0 ? raw.slice(0, paren).trim() : raw;
+        const em = name.indexOf(' — ');
+        if (em > 0) name = name.slice(0, em).trim();
+        return name || m.id;
+      },
+
+      _modelDisplayNameForId(id) {
+        if (!id) return '';
+        const m = this.chatModels.find((x) => x.id === id);
+        return this._modelDisplayName(m);
+      },
+
+      _modelsPickerList() {
+        const list = [...(this.chatModels || [])];
+        const order = { quality: 0, balanced: 1, fast: 2 };
+        list.sort((a, b) => {
+          const da = a.deprecated ? 1 : 0;
+          const db = b.deprecated ? 1 : 0;
+          if (da !== db) return da - db;
+          const oa = order[a.tier] ?? 3;
+          const ob = order[b.tier] ?? 3;
+          if (oa !== ob) return oa - ob;
+          return String(a.id).localeCompare(String(b.id));
+        });
+        return list;
+      },
+
+      _selectOptionLabel(m) {
+        let s = this._modelDisplayName(m);
+        if (m.deprecated) s += ' · Legacy';
+        return s;
+      },
+
+      _modelFriendlyLine(id, fallback) {
+        if (!id) return fallback;
+        const m = this.chatModels.find((x) => x.id === id);
+        if (!m?.label) return fallback;
+        const s = m.label;
+        return s.length > 72 ? s.slice(0, 69) + '…' : s;
+      },
+
+      _recommendedLegacySelected() {
+        if (this.selectedChatModel !== this.recommendedModel || !this.recommendedModel) return false;
+        const m = this.chatModels.find((x) => x.id === this.recommendedModel);
+        return !!(m && m.deprecated);
+      },
+
+      _selectedModelStateLabel() {
+        const meta = this._selectedModelMeta();
+        if (!meta) return '';
+        if (meta.deprecated) return 'Legacy';
+        if (this.selectedChatModel === this.recommendedModel) return 'Recommended';
+        if (this.tierPicks?.fast && this.selectedChatModel === this.tierPicks.fast) return 'Fast';
+        if (this.tierPicks?.balanced && this.selectedChatModel === this.tierPicks.balanced) return 'Balanced';
+        if (this.tierPicks?.quality && this.selectedChatModel === this.tierPicks.quality) return 'Best quality';
+        if (this.llmBackend === 'ollama' && meta.installed === false) return 'Download once';
+        if (this.llmBackend === 'ollama' && meta.installed) return 'Installed';
+        return '';
+      },
+
+      _selectedModelBadgeStyle() {
+        const s = this._selectedModelStateLabel();
+        if (s === 'Recommended') return 'background: var(--brand-blue-subtle); color: var(--brand-blue);';
+        if (s === 'Download once') return 'background: #fef3c7; color: #92400e;';
+        if (s === 'Legacy') return 'background: #fee2e2; color: #991b1b;';
+        return 'background: #ecfdf5; color: #065f46;';
+      },
+
+      _markSelectedModelInstalled() {
+        const meta = this._selectedModelMeta();
+        if (meta) meta.installed = true;
+      },
+
+      _showResultsError(message) {
+        document.getElementById('results-area').innerHTML =
+          '<div class="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-start gap-4 animate-fade-in">' +
+          '<div class="w-10 h-10 bg-danger rounded-xl flex items-center justify-center shrink-0">' +
+          '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+          '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />' +
+          '</svg></div><div><h3 class="font-semibold text-red-800">Analysis Error</h3>' +
+          '<p class="text-sm text-red-600 mt-1">' + message + '</p>' +
+          '<p class="text-xs text-red-400 mt-2">Please fix the issue and try again.</p></div></div>';
+      },
+
+      async _consumePullStream(response) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const evt = JSON.parse(line);
+            if (evt.error) throw new Error(evt.error);
+            this.overallProgress = typeof evt.percent === 'number' ? evt.percent : Math.max(this.overallProgress, 5);
+            this.analysisStage = evt.status
+              ? ('Downloading model: ' + evt.status)
+              : 'Downloading selected model…';
+          }
+        }
+        if (buffer.trim()) {
+          const evt = JSON.parse(buffer);
+          if (evt.error) throw new Error(evt.error);
+          this.overallProgress = typeof evt.percent === 'number' ? evt.percent : 100;
+          this.analysisStage = evt.status ? ('Downloading model: ' + evt.status) : 'Model ready';
+        }
+      },
+
+      async _ensureSelectedModelReady() {
+        if (this.llmBackend !== 'ollama' || !this.selectedChatModel) return true;
+        const meta = this._selectedModelMeta();
+        if (!meta || meta.installed !== false) return true;
+
+        this.phase = 'downloading';
+        this.overallProgress = 0;
+        this.analysisStage = 'Preparing model download…';
+        try {
+          const response = await fetch('/api/llm/pull', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_model: this.selectedChatModel }),
+          });
+          if (!response.ok || !response.body) {
+            let detail = 'Failed to start model download.';
+            try {
+              const body = await response.json();
+              detail = body.detail || detail;
+            } catch (_) {}
+            throw new Error(detail);
+          }
+          await this._consumePullStream(response);
+          this._markSelectedModelInstalled();
+          this.overallProgress = 100;
+          this.analysisStage = 'Model ready. Continuing…';
+          return true;
+        } catch (err) {
+          this.phase = 'idle';
+          this.overallProgress = 0;
+          this.analysisStage = '';
+          this._showResultsError(err?.message || 'Model download failed.');
+          return false;
+        }
       },
 
       previewJD() {
@@ -728,18 +1186,35 @@ block aria_analyze %}page{% endblock %} {% block content %}
           } else {
               fd.append('job_description', this.jd);
           }
-          
-          fetch('/api/parse-jd', { method: 'POST', body: fd })
+          this._appendLlmFields(fd);
+
+          this._ensureSelectedModelReady().then((ok) => {
+            if (!ok) {
+              this.jdPreviewing = false;
+              return;
+            }
+            fetch('/api/parse-jd', { method: 'POST', body: fd })
               .then(r => r.text())
               .then(html => {
                   document.getElementById('jd-preview-area').innerHTML = html;
                   this.jdPreviewing = false;
+                  if (this.phase === 'downloading') {
+                    this.phase = 'idle';
+                    this.overallProgress = 0;
+                    this.analysisStage = '';
+                  }
               })
               .catch(() => {
                   this.jdPreviewing = false;
+                  if (this.phase === 'downloading') {
+                    this.phase = 'idle';
+                    this.overallProgress = 0;
+                    this.analysisStage = '';
+                  }
                   document.getElementById('jd-preview-area').innerHTML = 
                       '<p class="text-sm mt-2" style="color: #ef4444;">Preview failed. You can still proceed with analysis.</p>';
               });
+          });
       },
 
       // --- JD mode & file management ---
@@ -840,11 +1315,13 @@ block aria_analyze %}page{% endblock %} {% block content %}
       },
 
       // --- Upload with real XHR progress ---
-      submitForm() {
+      async submitForm() {
         const jdReady = (this.jdMode === 'paste' && this.jd.trim().length > 20)
           || (this.jdMode === 'upload' && this.jdFile);
         if (this.phase !== "idle" || !jdReady || !this.files.length)
           return;
+
+        if (!(await this._ensureSelectedModelReady())) return;
 
         this.phase = "uploading";
         this.overallProgress = 0;
@@ -865,6 +1342,7 @@ block aria_analyze %}page{% endblock %} {% block content %}
           fd.append("job_description", this.jd);
         }
         this.files.forEach((f) => fd.append("resumes", f));
+        this._appendLlmFields(fd);
 
         // Compute cumulative size boundaries for per-file progress simulation
         const totalSize = this.files.reduce((sum, f) => sum + f.size, 0) || 1;
@@ -910,18 +1388,25 @@ block aria_analyze %}page{% endblock %} {% block content %}
           self.phase = "analyzing";
           self.overallProgress = 90;
           self.uploadedCount = self.files.length;
+          self.elapsedSeconds = 0;
           // Mark all files as analyzing
           self.fileStates.forEach((f) => {
             f.status = "analyzing";
             f.progress = 100;
           });
-          // Animate the remaining 10% with a slow fill
+          // Start elapsed timer (1-second tick)
+          self._elapsedTimer = setInterval(() => { self.elapsedSeconds++; }, 1000);
+          // Start asymptotic progress animation
           self._animateAnalyzing();
         });
 
         // --- Server response received ---
         xhr.addEventListener("load", () => {
+          // Stop timers immediately on response
+          if (self._analyzeTimer) { clearInterval(self._analyzeTimer); self._analyzeTimer = null; }
+          if (self._elapsedTimer) { clearInterval(self._elapsedTimer); self._elapsedTimer = null; }
           self.overallProgress = 100;
+          self.analysisStage = 'Done! Loading results…';
           self.fileStates.forEach((f) => {
             f.status = "done";
             f.progress = 100;
@@ -950,6 +1435,8 @@ block aria_analyze %}page{% endblock %} {% block content %}
             }
 
             self.phase = "idle";
+            self.elapsedSeconds = 0;
+            self.analysisStage = '';
             // Scroll to results
             resultsContainer
               .scrollIntoView({ behavior: "smooth", block: "start" });
@@ -958,6 +1445,8 @@ block aria_analyze %}page{% endblock %} {% block content %}
 
         // --- Error handling ---
         xhr.addEventListener("error", () => {
+          if (self._analyzeTimer) { clearInterval(self._analyzeTimer); self._analyzeTimer = null; }
+          if (self._elapsedTimer) { clearInterval(self._elapsedTimer); self._elapsedTimer = null; }
           self.phase = "idle";
           self._rebuildFileStates();
           document.getElementById("results-area").innerHTML =
@@ -966,6 +1455,8 @@ block aria_analyze %}page{% endblock %} {% block content %}
         });
 
         xhr.addEventListener("timeout", () => {
+          if (self._analyzeTimer) { clearInterval(self._analyzeTimer); self._analyzeTimer = null; }
+          if (self._elapsedTimer) { clearInterval(self._elapsedTimer); self._elapsedTimer = null; }
           self.phase = "idle";
           self._rebuildFileStates();
           document.getElementById("results-area").innerHTML =
@@ -978,30 +1469,49 @@ block aria_analyze %}page{% endblock %} {% block content %}
         xhr.send(fd);
       },
 
+      _formatElapsed(secs) {
+        if (secs < 60) return secs + 's elapsed';
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return m + 'm ' + (s < 10 ? '0' + s : s) + 's elapsed';
+      },
+
       _animateAnalyzing() {
-        const stages = [
-          { pct: 92, label: 'Parsing resumes & extracting text...' },
-          { pct: 94, label: 'Extracting skills & matching against JD...' },
-          { pct: 96, label: 'Running AI semantic analysis...' },
-          { pct: 98, label: 'Generating insights & recommendations...' },
+        const cyclingLabels = [
+          'Parsing resumes & extracting text…',
+          'Running AI skill matching…',
+          'Running semantic analysis…',
+          'Scoring against job description…',
+          'Generating AI candidate insights…',
+          'Almost there — finalizing results…',
         ];
-        let stageIdx = 0;
-        this.analysisStage = stages[0].label;
+        // Estimate ~35 seconds per resume for the asymptote target
+        const estimatedSeconds = Math.max(this.files.length * 35, 60);
+        let labelIdx = 0;
+        let t = 0; // elapsed ticks (each tick = 1s)
+
+        this.analysisStage = cyclingLabels[0];
         this.overallProgress = 90;
 
-        const interval = setInterval(() => {
+        if (this._analyzeTimer) clearInterval(this._analyzeTimer);
+        this._analyzeTimer = setInterval(() => {
           if (this.phase !== 'analyzing') {
-            clearInterval(interval);
-            this.analysisStage = '';
+            clearInterval(this._analyzeTimer);
+            this._analyzeTimer = null;
             return;
           }
-          if (stageIdx < stages.length) {
-            const s = stages[stageIdx];
-            this.overallProgress = s.pct;
-            this.analysisStage = s.label;
-            stageIdx++;
+          t++;
+          // Asymptotic fill: approaches 99 but never reaches it
+          // At t=estimatedSeconds: pct ≈ 94.5; at 2x: ≈ 96.3; at 3x: ≈ 97.0
+          const pct = 99 - (9 / (1 + t / estimatedSeconds));
+          this.overallProgress = Math.min(Math.round(pct * 10) / 10, 99);
+
+          // Rotate labels every 15 seconds so user sees active progress
+          if (t % 15 === 0) {
+            labelIdx = (labelIdx + 1) % cyclingLabels.length;
+            this.analysisStage = cyclingLabels[labelIdx];
           }
-        }, 3000);
+        }, 1000);
       },
     };
   }

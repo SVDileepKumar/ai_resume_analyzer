@@ -1,20 +1,19 @@
 /* ================================================================
    ATS Resume Analyzer — Design System
-   Walmart Design Language + Apple/Netflix-level polish
    ================================================================ */
 
 /* ----- CSS Custom Properties (Design Tokens) ----- */
 :root {
-  /* Walmart colors */
-  --wm-blue: #0053e2;
-  --wm-blue-hover: #0046c0;
-  --wm-blue-pressed: #003a9e;
-  --wm-blue-subtle: #eff6ff;
-  --wm-spark: #ffc220;
-  --wm-spark-dark: #995213;
-  --wm-success: #2a8703;
-  --wm-danger: #ea1100;
-  --wm-warning: #995213;
+  /* Brand palette */
+  --brand-blue: #0053e2;
+  --brand-blue-hover: #0046c0;
+  --brand-blue-pressed: #003a9e;
+  --brand-blue-subtle: #eff6ff;
+  --brand-accent: #ffc220;
+  --brand-accent-dark: #995213;
+  --brand-success: #2a8703;
+  --brand-danger: #ea1100;
+  --brand-warning: #995213;
 
   /* Surfaces */
   --surface-primary: #ffffff;
@@ -86,7 +85,7 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.35);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
-  --wm-blue-subtle: rgba(0, 83, 226, 0.15);
+  --brand-blue-subtle: rgba(0, 83, 226, 0.15);
 }
 
 /* ----- Animations ----- */
@@ -309,7 +308,7 @@ body {
   width: 48px;
   height: 48px;
   border: 3px solid var(--border-default);
-  border-top-color: var(--wm-blue);
+  border-top-color: var(--brand-blue);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -323,7 +322,7 @@ body {
 .loading-dots span {
   width: 8px;
   height: 8px;
-  background: var(--wm-blue);
+  background: var(--brand-blue);
   border-radius: 50%;
   animation: pulse-ring 1.4s ease-in-out infinite;
 }
@@ -363,12 +362,12 @@ body {
   position: relative;
 }
 .nav-link:hover {
-  color: var(--wm-blue);
-  background: var(--wm-blue-subtle);
+  color: var(--brand-blue);
+  background: var(--brand-blue-subtle);
 }
 .nav-link-active {
-  color: var(--wm-blue);
-  background: var(--wm-blue-subtle);
+  color: var(--brand-blue);
+  background: var(--brand-blue-subtle);
   font-weight: 600;
 }
 .mobile-nav-link {
@@ -385,6 +384,10 @@ body {
 }
 
 /* ----- Cards ----- */
+#main-content {
+  min-width: 0;
+}
+
 .card {
   background: var(--surface-primary);
   border: 1px solid var(--border-light);
@@ -392,6 +395,7 @@ body {
   padding: 1.5rem;
   box-shadow: var(--shadow-xs);
   transition: all var(--duration-normal) var(--ease-smooth);
+  min-width: 0;
 }
 .card:hover {
   box-shadow: var(--shadow-md);
@@ -457,7 +461,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--wm-blue);
+  background: var(--brand-blue);
   color: var(--text-inverse);
   font-weight: 600;
   padding: 0.75rem 2rem;
@@ -476,12 +480,12 @@ body {
   pointer-events: none;
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--wm-blue-hover);
+  background: var(--brand-blue-hover);
   box-shadow: var(--shadow-blue-lg);
   transform: translateY(-1px);
 }
 .btn-primary:active:not(:disabled) {
-  background: var(--wm-blue-pressed);
+  background: var(--brand-blue-pressed);
   transform: translateY(0);
   box-shadow: var(--shadow-blue);
 }
@@ -530,7 +534,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--wm-spark);
+  background: var(--brand-accent);
   color: #1a1a1a;
   font-weight: 700;
   padding: 0.875rem 2.25rem;
@@ -552,7 +556,7 @@ body {
 .step-number {
   width: 2rem;
   height: 2rem;
-  background: var(--wm-blue);
+  background: var(--brand-blue);
   color: white;
   border-radius: var(--radius-sm);
   display: flex;
@@ -569,7 +573,7 @@ body {
   box-shadow: none;
 }
 .step-number-complete {
-  background: var(--wm-success);
+  background: var(--brand-success);
   color: white;
   box-shadow: 0 2px 8px rgba(42, 135, 3, 0.2);
 }
@@ -583,7 +587,7 @@ body {
   transition: background var(--duration-slow);
 }
 .step-connector-active {
-  background: var(--wm-blue);
+  background: var(--brand-blue);
 }
 
 /* ----- Form inputs ----- */
@@ -606,7 +610,7 @@ body {
 }
 .input-textarea:focus {
   outline: none;
-  border-color: var(--wm-blue);
+  border-color: var(--brand-blue);
   box-shadow: 0 0 0 3px rgba(0, 83, 226, 0.12);
 }
 
@@ -625,16 +629,246 @@ body {
   color: var(--text-primary);
 }
 .role-select-card:hover {
-  border-color: var(--wm-blue);
-  background: var(--wm-blue-subtle);
+  border-color: var(--brand-blue);
+  background: var(--brand-blue-subtle);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 .role-select-active {
-  border-color: var(--wm-blue) !important;
-  background: var(--wm-blue-subtle) !important;
+  border-color: var(--brand-blue) !important;
+  background: var(--brand-blue-subtle) !important;
   box-shadow: 0 0 0 3px rgba(0, 83, 226, 0.12);
   transform: translateY(-1px);
+}
+
+/* Alpine: hide until initialized */
+[x-cloak] {
+  display: none !important;
+}
+
+/* ----- LLM model picker (analyze / review) ----- */
+.lm-model-card-inner {
+  max-width: 100%;
+  width: 100%;
+}
+.lm-model-lede {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+}
+.lm-section-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.65rem;
+}
+.lm-preset-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lm-preset-grid-3 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+@media (min-width: 640px) {
+  .lm-preset-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.lm-shortcut-row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-normal) var(--ease-smooth),
+    box-shadow var(--duration-normal) var(--ease-smooth),
+    background var(--duration-normal) var(--ease-smooth);
+}
+.lm-shortcut-row > .min-w-0 {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.lm-shortcut-row:hover:not(:disabled) {
+  border-color: rgba(0, 83, 226, 0.38);
+  background: var(--brand-blue-subtle);
+}
+.lm-shortcut-row:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 83, 226, 0.2);
+}
+.lm-shortcut-row:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.lm-shortcut-row-active {
+  border-color: var(--brand-blue) !important;
+  background: var(--brand-blue-subtle) !important;
+  box-shadow: 0 0 0 1px rgba(0, 83, 226, 0.25);
+}
+.lm-shortcut-row-featured {
+  padding-top: 0.95rem;
+  padding-bottom: 0.95rem;
+  border-width: 1.5px;
+  border-left: 4px solid var(--brand-blue);
+}
+.lm-shortcut-kicker {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.2rem;
+}
+.lm-shortcut-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: 1.25;
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.lm-shortcut-id {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  color: var(--text-tertiary);
+  margin-top: 0.2rem;
+  max-width: 100%;
+}
+.lm-shortcut-sub {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  margin-top: 0.35rem;
+  line-height: 1.35;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+.lm-selection-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-light);
+}
+.lm-selection-summary-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+.lm-selection-summary-id {
+  font-size: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--text-tertiary);
+  margin-top: 0.15rem;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.lm-model-detail-panel {
+  padding: 0.85rem 1rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-light);
+}
+.lm-model-detail-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+.lm-model-detail-body {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+.lm-details-disclosure {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--surface-primary);
+  overflow: hidden;
+}
+.lm-details-disclosure summary {
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  user-select: none;
+}
+.lm-details-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+.lm-details-disclosure summary::after {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--text-tertiary);
+  border-bottom: 2px solid var(--text-tertiary);
+  transform: rotate(45deg);
+  margin-top: -0.2rem;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+.lm-details-disclosure[open] summary::after {
+  transform: rotate(-135deg);
+  margin-top: 0.15rem;
+}
+.lm-details-disclosure .lm-details-body {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border-light);
+}
+.lm-footnote-details summary {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  list-style: none;
+}
+.lm-footnote-details summary::-webkit-details-marker {
+  display: none;
+}
+.lm-footnote-details summary:hover {
+  color: var(--text-secondary);
+}
+.lm-model-select {
+  min-height: 2.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
 }
 
 /* ----- JD Mode Toggle ----- */
@@ -668,11 +902,11 @@ body {
   background: var(--surface-secondary);
 }
 .drop-zone:hover {
-  border-color: var(--wm-blue);
-  background: var(--wm-blue-subtle);
+  border-color: var(--brand-blue);
+  background: var(--brand-blue-subtle);
 }
 .drop-zone-active {
-  border-color: var(--wm-blue) !important;
+  border-color: var(--brand-blue) !important;
   background: rgba(0, 83, 226, 0.08) !important;
   transform: scale(1.005);
   box-shadow: inset 0 0 0 2px rgba(0, 83, 226, 0.1);
@@ -698,8 +932,8 @@ body {
   display: inline-flex;
   align-items: center;
   padding: 0.375rem 1rem;
-  background: var(--wm-blue-subtle);
-  color: var(--wm-blue);
+  background: var(--brand-blue-subtle);
+  color: var(--brand-blue);
   border-radius: var(--radius-full);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -850,14 +1084,14 @@ body {
   color: var(--text-primary);
 }
 .toolbar-btn-active {
-  background: var(--wm-blue);
+  background: var(--brand-blue);
   color: white;
   box-shadow: var(--shadow-blue);
 }
 
 /* ----- Focus states (WCAG 2.2 AA) ----- */
 *:focus-visible {
-  outline: 2px solid var(--wm-blue);
+  outline: 2px solid var(--brand-blue);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -974,13 +1208,13 @@ body {
 }
 
 /* ----- Progress bar utilities ----- */
-.bg-walmart-blue {
-  background-color: var(--wm-blue);
+.bg-brand-blue {
+  background-color: var(--brand-blue);
 }
 .bg-success {
   background-color: #2a8703;
 }
-.bg-walmart-spark {
+.bg-brand-accent {
   background-color: #ffc220;
 }
 .bg-danger {
@@ -997,7 +1231,7 @@ body {
 }
 
 .progress-bar-pulse {
-  background: linear-gradient(90deg, var(--wm-blue), #3b82f6, var(--wm-blue));
+  background: linear-gradient(90deg, var(--brand-blue), #3b82f6, var(--brand-blue));
   background-size: 200% 100%;
   animation:
     shimmer 1.5s ease-in-out infinite,
@@ -1014,8 +1248,8 @@ body {
 .text-danger {
   color: #ea1100;
 }
-.text-walmart-blue {
-  color: var(--wm-blue);
+.text-brand-blue {
+  color: var(--brand-blue);
 }
 
 /* ----- Improvement Suggestions ----- */
@@ -1097,7 +1331,7 @@ body {
 /* Score projection display */
 .score-projection {
   padding: 0.75rem 1rem;
-  background: var(--wm-blue-subtle);
+  background: var(--brand-blue-subtle);
   border-radius: var(--radius-md);
   margin-bottom: 0.75rem;
   display: flex;

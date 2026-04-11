@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "models": [
+    {
+      "id": "gpt-4o-mini",
+      "label": "GPT-4o mini",
+      "tier": "balanced",
+      "notes": "Low cost; strong JSON mode.",
+      "description": "Cost-efficient hosted model with reliable structured output.",
+      "best_for": "Best default when you want strong JSON responses without high token spend."
+    },
+    {
+      "id": "gpt-4o",
+      "label": "GPT-4o",
+      "tier": "quality",
+      "notes": "Higher cost; use for difficult JDs.",
+      "description": "Higher-quality hosted model for tougher matching and synthesis tasks.",
+      "best_for": "Use for complex job descriptions, harder resume comparisons, and richer summaries."
+    },
+    {
+      "id": "gpt-4.1-mini",
+      "label": "GPT-4.1 mini",
+      "tier": "balanced",
+      "notes": "OpenAI-compatible ID; verify availability on your provider.",
+      "description": "Balanced hosted model with broad provider compatibility.",
+      "best_for": "Good alternative when your OpenAI-compatible provider exposes 4.1-mini."
+    }
+  ]
+}

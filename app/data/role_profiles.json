@@ -1,98 +1,212 @@
 {
-  "software engineer": {
+  "business analyst": {
     "skills": [
-      "python", "java", "javascript", "sql", "git", "rest api",
-      "docker", "linux", "agile", "unit testing", "ci/cd",
-      "microservices", "design patterns", "problem solving"
+      "business analysis", "requirements gathering", "gap analysis", "process mapping",
+      "user stories", "acceptance criteria", "uat", "stakeholder workshops", "brd", "frd",
+      "sql", "excel", "jira", "confluence", "agile", "scrum", "documentation",
+      "stakeholder management", "presentation", "data analysis"
     ],
-    "weights": { "skills": 35, "experience": 25, "similarity": 20, "projects": 12, "education": 8 }
+    "weights": { "skills": 24, "experience": 26, "similarity": 26, "projects": 12, "education": 7, "certifications": 5 }
   },
-  "frontend developer": {
+  "customer success manager": {
     "skills": [
-      "javascript", "typescript", "react", "html", "css", "tailwind",
-      "redux", "webpack", "vite", "responsive design", "web accessibility",
-      "git", "rest api", "jest", "figma"
+      "customer success", "account management", "customer retention", "renewals", "upselling",
+      "customer onboarding", "qbr", "nps", "communication", "presentation",
+      "stakeholder management", "project management", "salesforce", "excel", "documentation",
+      "problem solving", "cross functional"
     ],
-    "weights": { "skills": 35, "experience": 20, "similarity": 20, "projects": 18, "education": 7 }
-  },
-  "backend developer": {
-    "skills": [
-      "python", "java", "node.js", "sql", "postgresql", "rest api",
-      "docker", "redis", "microservices", "kafka", "linux",
-      "git", "ci/cd", "unit testing"
-    ],
-    "weights": { "skills": 35, "experience": 25, "similarity": 20, "projects": 12, "education": 8 }
-  },
-  "full stack developer": {
-    "skills": [
-      "javascript", "typescript", "react", "node.js", "python",
-      "sql", "mongodb", "rest api", "git", "docker",
-      "html", "css", "tailwind", "agile", "ci/cd"
-    ],
-    "weights": { "skills": 35, "experience": 22, "similarity": 18, "projects": 17, "education": 8 }
+    "weights": { "skills": 20, "experience": 26, "similarity": 28, "projects": 14, "education": 7, "certifications": 5 }
   },
   "data analyst": {
     "skills": [
-      "sql", "python", "excel", "tableau", "power bi",
-      "data visualization", "data analysis", "statistics",
-      "pandas", "reporting", "business intelligence"
+      "sql", "python", "excel", "google sheets", "tableau", "power bi", "looker",
+      "metabase", "data visualization", "data analysis", "business intelligence",
+      "reporting", "pandas", "statistics", "a/b testing", "hypothesis testing",
+      "snowflake", "bigquery"
     ],
-    "weights": { "skills": 30, "experience": 25, "similarity": 25, "projects": 12, "education": 8 }
-  },
-  "data scientist": {
-    "skills": [
-      "python", "r", "sql", "machine learning", "deep learning",
-      "tensorflow", "pytorch", "pandas", "numpy", "scikit-learn",
-      "nlp", "statistics", "data visualization", "feature engineering"
-    ],
-    "weights": { "skills": 30, "experience": 20, "similarity": 20, "projects": 15, "education": 15 }
-  },
-  "ml engineer": {
-    "skills": [
-      "python", "tensorflow", "pytorch", "docker", "kubernetes",
-      "mlops", "machine learning", "deep learning", "model deployment",
-      "aws", "ci/cd", "data pipeline", "spark"
-    ],
-    "weights": { "skills": 30, "experience": 22, "similarity": 20, "projects": 18, "education": 10 }
-  },
-  "devops engineer": {
-    "skills": [
-      "docker", "kubernetes", "terraform", "aws", "linux",
-      "ci/cd", "jenkins", "github actions", "ansible", "monitoring",
-      "prometheus", "grafana", "python", "bash", "nginx"
-    ],
-    "weights": { "skills": 35, "experience": 28, "similarity": 17, "projects": 12, "education": 8 }
-  },
-  "qa engineer": {
-    "skills": [
-      "selenium", "api testing", "manual testing", "automation testing",
-      "jira", "sql", "postman", "python", "java",
-      "regression testing", "test driven development", "cucumber", "git"
-    ],
-    "weights": { "skills": 35, "experience": 30, "similarity": 15, "projects": 12, "education": 8 }
-  },
-  "product manager": {
-    "skills": [
-      "agile", "scrum", "jira", "roadmap", "stakeholder management",
-      "data analysis", "sql", "communication", "leadership",
-      "project management", "presentation", "documentation"
-    ],
-    "weights": { "skills": 25, "experience": 30, "similarity": 25, "projects": 10, "education": 10 }
+    "weights": { "skills": 28, "experience": 24, "similarity": 24, "projects": 11, "education": 8, "certifications": 5 }
   },
   "data engineer": {
     "skills": [
-      "python", "sql", "spark", "airflow", "kafka",
-      "aws", "docker", "etl", "data warehouse", "data modeling",
-      "snowflake", "databricks", "dbt", "data pipeline"
+      "python", "sql", "spark", "airflow", "kafka", "dbt", "snowflake", "databricks",
+      "etl", "data warehouse", "data lake", "data modeling", "streaming",
+      "batch processing", "docker", "aws", "gcp", "data pipeline", "data governance",
+      "postgresql", "servicenow", "informatica"
     ],
-    "weights": { "skills": 30, "experience": 25, "similarity": 20, "projects": 15, "education": 10 }
+    "weights": { "skills": 27, "experience": 24, "similarity": 19, "projects": 14, "education": 9, "certifications": 7 }
+  },
+  "data scientist": {
+    "skills": [
+      "python", "r", "sql", "machine learning", "deep learning", "mlops",
+      "tensorflow", "pytorch", "pandas", "numpy", "scikit-learn", "xgboost",
+      "lightgbm", "nlp", "statistics", "a/b testing", "feature engineering",
+      "data visualization", "hugging face", "model deployment"
+    ],
+    "weights": { "skills": 27, "experience": 19, "similarity": 19, "projects": 14, "education": 14, "certifications": 7 }
+  },
+  "devops engineer": {
+    "skills": [
+      "docker", "kubernetes", "helm", "terraform", "ansible", "infrastructure as code",
+      "aws", "gcp", "linux", "ci/cd", "jenkins", "github actions", "gitlab ci",
+      "prometheus", "grafana", "datadog", "nginx", "python", "bash", "monitoring",
+      "git"
+    ],
+    "weights": { "skills": 30, "experience": 28, "similarity": 17, "projects": 12, "education": 8, "certifications": 5 }
+  },
+  "financial analyst": {
+    "skills": [
+      "excel", "financial modeling", "budgeting", "forecasting", "variance analysis",
+      "financial reporting", "financial analysis", "cost accounting", "statistics",
+      "data analysis", "sql", "power bi", "tableau", "presentation", "communication",
+      "stakeholder management", "documentation"
+    ],
+    "weights": { "skills": 22, "experience": 26, "similarity": 24, "projects": 10, "education": 12, "certifications": 6 }
+  },
+  "frontend developer": {
+    "skills": [
+      "javascript", "typescript", "react", "next.js", "html", "css", "tailwind",
+      "redux", "zustand", "webpack", "vite", "responsive design", "web accessibility",
+      "git", "rest api", "jest", "cypress", "playwright", "figma", "storybook",
+      "openapi"
+    ],
+    "weights": { "skills": 30, "experience": 20, "similarity": 20, "projects": 18, "education": 7, "certifications": 5 }
+  },
+  "full stack developer": {
+    "skills": [
+      "javascript", "typescript", "react", "next.js", "node.js", "python",
+      "sql", "postgresql", "mongodb", "rest api", "graphql", "git", "docker",
+      "html", "css", "tailwind", "oauth", "ci/cd", "agile", "openapi",
+      "aws"
+    ],
+    "weights": { "skills": 30, "experience": 22, "similarity": 18, "projects": 17, "education": 8, "certifications": 5 }
+  },
+  "hr business partner": {
+    "skills": [
+      "talent acquisition", "recruitment", "onboarding", "payroll", "employee relations",
+      "performance management", "hr policies", "compensation", "benefits administration",
+      "communication", "stakeholder management", "presentation", "documentation",
+      "leadership", "problem solving", "project management", "jira", "confluence"
+    ],
+    "weights": { "skills": 18, "experience": 28, "similarity": 28, "projects": 8, "education": 12, "certifications": 6 }
+  },
+  "ml engineer": {
+    "skills": [
+      "python", "tensorflow", "pytorch", "docker", "kubernetes", "mlops",
+      "machine learning", "deep learning", "model deployment", "spark",
+      "airflow", "kafka", "aws", "gcp", "ci/cd", "data pipeline", "monitoring",
+      "sql", "hugging face"
+    ],
+    "weights": { "skills": 27, "experience": 21, "similarity": 18, "projects": 17, "education": 9, "certifications": 8 }
   },
   "mobile developer": {
     "skills": [
-      "react native", "flutter", "ios", "android", "javascript",
-      "typescript", "dart", "swift", "kotlin", "rest api",
-      "git", "mobile development", "firebase"
+      "react native", "flutter", "ios", "android", "javascript", "typescript",
+      "dart", "swift", "kotlin", "swiftui", "jetpack compose", "rest api",
+      "git", "mobile development", "firebase", "app store", "google play"
     ],
-    "weights": { "skills": 35, "experience": 22, "similarity": 18, "projects": 18, "education": 7 }
+    "weights": { "skills": 30, "experience": 22, "similarity": 18, "projects": 18, "education": 7, "certifications": 5 }
+  },
+  "performance test engineer": {
+    "skills": [
+      "load testing", "performance testing", "jmeter", "k6", "api testing", "postman",
+      "sql", "python", "java", "linux", "monitoring", "grafana", "prometheus",
+      "jenkins", "git", "jira", "agile", "test planning", "quality assurance",
+      "automation testing", "aws", "azure"
+    ],
+    "weights": { "skills": 30, "experience": 28, "similarity": 16, "projects": 14, "education": 7, "certifications": 5 }
+  },
+  "product manager": {
+    "skills": [
+      "agile", "scrum", "kanban", "jira", "confluence", "roadmap", "strategy",
+      "stakeholder management", "data analysis", "sql", "a/b testing",
+      "communication", "leadership", "project management", "presentation",
+      "documentation", "cross functional"
+    ],
+    "weights": { "skills": 23, "experience": 28, "similarity": 24, "projects": 9, "education": 9, "certifications": 7 }
+  },
+  "qa engineer": {
+    "skills": [
+      "selenium", "cypress", "playwright", "api testing", "postman", "manual testing",
+      "automation testing", "jira", "sql", "python", "java", "regression testing",
+      "integration testing", "load testing", "test driven development", "cucumber",
+      "git", "ci/cd"
+    ],
+    "weights": { "skills": 30, "experience": 30, "similarity": 15, "projects": 12, "education": 8, "certifications": 5 }
+  },
+  "salesforce developer": {
+    "skills": [
+      "salesforce", "apex", "javascript", "sql", "rest api", "agile", "jira",
+      "git", "data modeling", "integration testing", "documentation", "stakeholder management"
+    ],
+    "weights": { "skills": 30, "experience": 24, "similarity": 20, "projects": 14, "education": 7, "certifications": 5 }
+  },
+  "sap consultant": {
+    "skills": [
+      "sap", "sql", "excel", "business analysis", "requirements gathering", "uat",
+      "agile", "jira", "documentation", "stakeholder management", "presentation",
+      "process mapping", "integration testing", "oracle ebs"
+    ],
+    "weights": { "skills": 28, "experience": 26, "similarity": 22, "projects": 12, "education": 7, "certifications": 5 }
+  },
+  "sdet": {
+    "skills": [
+      "java", "python", "typescript", "javascript", "selenium", "cypress", "playwright",
+      "api testing", "postman", "rest api", "git", "jira", "ci/cd", "jenkins",
+      "github actions", "automation testing", "bdd", "cucumber", "junit", "pytest",
+      "unit testing", "integration testing", "docker", "kubernetes"
+    ],
+    "weights": { "skills": 32, "experience": 24, "similarity": 18, "projects": 15, "education": 6, "certifications": 5 }
+  },
+  "servicenow developer": {
+    "skills": [
+      "servicenow", "javascript", "sql", "rest api", "agile", "jira", "git",
+      "business analysis", "documentation", "stakeholder management", "integration testing",
+      "itil", "problem solving"
+    ],
+    "weights": { "skills": 30, "experience": 24, "similarity": 20, "projects": 14, "education": 7, "certifications": 5 }
+  },
+  "snowflake engineer": {
+    "skills": [
+      "snowflake", "sql", "python", "dbt", "airflow", "kafka", "etl", "data modeling",
+      "data warehouse", "data pipeline", "aws", "azure", "gcp", "git", "docker",
+      "tableau", "power bi", "data governance", "spark"
+    ],
+    "weights": { "skills": 28, "experience": 26, "similarity": 20, "projects": 14, "education": 7, "certifications": 5 }
+  },
+  "software engineer": {
+    "skills": [
+      "python", "java", "go", "typescript", "javascript", "sql", "postgresql",
+      "git", "github", "rest api", "graphql", "docker", "kubernetes",
+      "linux", "agile", "unit testing", "integration testing", "pytest",
+      "ci/cd", "github actions", "microservices", "aws", "monitoring",
+      "design patterns", "problem solving"
+    ],
+    "weights": { "skills": 30, "experience": 25, "similarity": 20, "projects": 12, "education": 8, "certifications": 5 }
+  },
+  "technical recruiter": {
+    "skills": [
+      "talent acquisition", "recruitment", "communication", "stakeholder management",
+      "documentation", "presentation", "negotiation", "jira", "confluence", "excel",
+      "problem solving", "cross functional"
+    ],
+    "weights": { "skills": 20, "experience": 25, "similarity": 28, "projects": 12, "education": 10, "certifications": 5 }
+  },
+  "test lead": {
+    "skills": [
+      "test planning", "quality assurance", "defect management", "test estimation",
+      "traceability matrix", "risk based testing", "agile", "scrum", "jira", "confluence",
+      "manual testing", "automation testing", "api testing", "stakeholder management",
+      "mentoring", "communication", "leadership", "ci/cd", "git"
+    ],
+    "weights": { "skills": 26, "experience": 32, "similarity": 18, "projects": 12, "education": 7, "certifications": 5 }
+  },
+  "backend developer": {
+    "skills": [
+      "python", "java", "node.js", "sql", "postgresql", "mongodb", "rest api",
+      "graphql", "grpc", "docker", "redis", "microservices", "kafka", "rabbitmq",
+      "oauth", "jwt", "linux", "git", "ci/cd", "github actions", "unit testing",
+      "aws"
+    ],
+    "weights": { "skills": 30, "experience": 25, "similarity": 20, "projects": 12, "education": 8, "certifications": 5 }
   }
 }
