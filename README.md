@@ -1,6 +1,6 @@
 # 📄 ATS Resume Analyzer
 
-An enterprise-grade Applicant Tracking System (ATS) resume analyzer built with **FastAPI**, **HTMX**, **Alpine.js**, **Tailwind CSS**, and **Chart.js**. Features deep LLM integration for semantic analysis, career trajectory evaluation, and AI-powered coaching on **Individual Resume Review** (`/review`).
+An enterprise-grade Applicant Tracking System (ATS) resume analyzer built with **FastAPI**, **HTMX**, **Alpine.js**, **Tailwind CSS**, and **Chart.js**. Features deep LLM integration for semantic analysis, career trajectory evaluation, and AI-powered resume improvement coaching.
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)
@@ -18,7 +18,7 @@ An enterprise-grade Applicant Tracking System (ATS) resume analyzer built with *
 - **JD File Upload** — Upload JD as PDF/DOCX alongside text paste option
 - **Hiring-manager sample JDs** — Templates are embedded with the page (same data as `GET /api/jd-templates`); choose a role, then **Use template** to fill the JD in paste mode
 - **Smart Skill Matching** — 900+ skills across 27 categories matched against JD
-- **24 Job Role Profiles** — Core engineering, testing (QA, SDET, Test Lead, Performance), enterprise platforms (SAP, ServiceNow, Salesforce, Snowflake), plus non-IT samples (HRBP, Financial Analyst, Technical Recruiter, Customer Success). When a role is selected, role-specific dimension weights from `role_profiles.json` are used (normalized to sum 1.0); with no role selected or `USE_ROLE_WEIGHTS=false`, unified weights are used for all candidates.
+- **24 Job Role Profiles** — Core engineering, testing (QA, SDET, Test Lead, Performance), enterprise platforms (SAP, ServiceNow, Salesforce, Snowflake), plus non-IT samples (HRBP, Financial Analyst, etc.)
 - **6-Dimension Scoring** — Skills (33%), Experience (24%), Similarity (19%), Projects (11%), Education (8%), Certifications (5%) — weights vary by role or use unified defaults
 - **Score Normalization** — Prevents dimension bias across scoring dimensions
 - **Radar Charts** — Visual score breakdown per candidate (Chart.js)
@@ -56,7 +56,7 @@ All AI features are optional and gracefully degrade when Ollama is not running.
 | **Executive Hiring Summary** | Batch-level analysis with 3-5 actionable recommendations |
 | **Comparative Ranking** | AI-powered candidate ranking across multiple dimensions |
 
-**Scoring modes:** With `AI_PRIMARY_SCORING=true` (default), one structured LLM call sets all six dimension scores when the LLM is available; regex anchors skill divergence when unified vs regex skills differ by more than `SCORE_DIVERGENCE_THRESHOLD`. Set `AI_PRIMARY_SCORING=false` for **hybrid** scoring (regex + semantic skills, optional holistic blend, parallel enrichers). Resumes below `ENRICHER_SCORE_THRESHOLD` skip the deep enricher pass to halve LLM calls for weak candidates.
+**Scoring modes:** With `AI_PRIMARY_SCORING=true` (default), one structured LLM call sets all six dimension scores when the LLM is available; regex anchors skill divergence when unified vs regex scores diverge by more than `SCORE_DIVERGENCE_THRESHOLD`.
 
 ### 🎨 Design & Accessibility
 - **WCAG 2.2 AA Compliant** — Keyboard navigable, proper contrast ratios, screen reader support
@@ -68,12 +68,19 @@ All AI features are optional and gracefully degrade when Ollama is not running.
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+- **Python 3.12+** ([python.org](https://www.python.org/downloads/)) — Required for the backend
+- **Git** ([git-scm.com](https://git-scm.com)) — To clone the repository
+- **Ollama** (optional, but recommended) — For AI features. See [AI Setup](#-ai-setup-optional-but-recommended) below.
+
 ### One-command setup (macOS / Linux)
 
 For a guided install (Python venv, `pip install`, Ollama + models from `.env` / `.env.example`, and `.env` creation):
 
 ```bash
-cd idea
+git clone https://github.com/SVDileepKumar/ai_resume_analyzer.git
+cd ai_resume_analyzer
 bash scripts/setup-local.sh
 ```
 
@@ -83,31 +90,75 @@ Then start Ollama if it is not already running (`ollama serve`), activate `.venv
 
 ### Manual setup
 
+#### All platforms:
+
 ```bash
-# 1. Clone & enter project
-cd idea
+# 1. Clone the repository
+git clone https://github.com/SVDileepKumar/ai_resume_analyzer.git
+cd ai_resume_analyzer
 
 # 2. Create virtual environment
-uv venv   # or: python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv
+# Or if you have uv installed:
+# uv venv
 
-# 3. Install dependencies
+# 3. Activate virtual environment
+# On macOS / Linux:
+source .venv/bin/activate
+# On Windows:
+# .venv\Scripts\activate
+
+# 4. Install dependencies
 pip install -r requirements.txt
 
-# 4. Run the server
+# 5. Copy environment template (optional, but recommended)
+cp .env.example .env
+
+# 6. Run the server
 uvicorn app.main:app --host 0.0.0.0 --port 8899 --timeout-keep-alive 1800
 
-# 5. Open in browser
+# 7. Open in browser
+# macOS:
 open http://localhost:8899
+# Linux:
+xdg-open http://localhost:8899
+# Windows:
+start http://localhost:8899
+```
+
+**Port configuration:** You can change `8899` to any available port. Useful if 8899 is already in use:
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8888 --timeout-keep-alive 1800
 ```
 
 ### Frontend assets: CDN-first, local fallback
 
-[`app/templates/base.html`](app/templates/base.html) tries **public CDNs first** (Tailwind Play, Google Fonts, jsDelivr for HTMX / Alpine / Chart.js) so you typically get **current CDN builds** when online. If a script or stylesheet fails to load (offline, firewall, corporate block), the same page **falls back** to pinned copies under `/static` (vendored JS, built `tailwind.css`, self-hosted fonts).
+[`app/templates/base.html`](app/templates/base.html) tries **public CDNs first** (Tailwind Play, Google Fonts, jsDelivr for HTMX / Alpine / Chart.js) so you typically get **current CDN builds** without extra setup.
 
-- **Offline / air-gapped:** After one install that includes `app/static` assets, the UI still loads via fallbacks without those CDNs.
-- **Maintainer:** Rebuild Tailwind when templates change: `npm install && npm run build:css`. Refresh vendored mirrors: `bash scripts/download-frontend-assets.sh` (requires network).
-- **Guard:** `bash scripts/check-offline-assets.sh` checks that fallback paths in `base.html` exist on disk (`tailwind.css`, `fonts.css`, vendor JS).
+**For most users: No action needed** — the app works out of the box.
+
+#### Offline / air-gapped environments:
+After one install that includes `app/static` assets, the UI still loads via fallbacks without those CDNs.
+
+#### For maintainers (modifying CSS):
+Rebuild Tailwind when templates change:
+```bash
+npm install
+npm run build:css
+```
+
+Refresh vendored mirrors:
+```bash
+bash scripts/download-frontend-assets.sh  # Requires network access
+```
+
+#### CI / local guards:
+Verify that fallback paths in `base.html` exist on disk:
+```bash
+bash scripts/check-offline-assets.sh
+```
+
+### Corporate proxy / air-gapped networks
 
 On **corporate networks** with `HTTP_PROXY` / `HTTPS_PROXY`, set `NO_PROXY` so loopback is not sent through the proxy (for curl, browser, or tools outside Python):
 
@@ -129,6 +180,8 @@ brew install ollama
 
 # Linux — official installer (review https://ollama.com/install.sh if required by policy)
 curl -fsSL https://ollama.com/install.sh | sh
+
+# Windows — download from https://ollama.ai/download
 
 # Pull required models (override names in .env if you use different models)
 ollama pull gemma4:e2b            # Chat / analysis (8GB-friendly default)
@@ -153,7 +206,7 @@ cp .env.example .env
 
 ### Ollama tuning (code, not `.env`)
 
-Token budgets, JSON parse retries, JSON sampling temperature, and **HTTP retry** behavior for transient Ollama failures are defined as **constants in `app/config.py`** (e.g. `OLLAMA_NUM_PREDICT`, `OLLAMA_NUM_PREDICT_JSON_HEAVY`, `OLLAMA_NUM_PREDICT_JD_SKILLS`, `OLLAMA_HTTP_MAX_RETRIES`). Change those values in code and redeploy — they are not read from the environment.
+Token budgets, JSON parse retries, JSON sampling temperature, and **HTTP retry** behavior for transient Ollama failures are defined as **constants in `app/config.py`** (e.g. `OLLAMA_NUM_PREDICT`, `OLLAMA_TEMPERATURE`).
 
 ### Environment Variables
 
@@ -162,7 +215,7 @@ Token budgets, JSON parse retries, JSON sampling temperature, and **HTTP retry**
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `LLM_BACKEND` | `ollama` | `ollama` (local) or `openai` (hosted / OpenAI-compatible API) |
-| `NO_PROXY` / `no_proxy` | (merged at startup) | App merges `localhost`, `127.0.0.1`, `::1` into both vars on `app.config` import so local Ollama is not routed through `HTTP_PROXY`. Set `NO_PROXY` in your shell for curl/browser. |
+| `NO_PROXY` / `no_proxy` | (merged at startup) | App merges `localhost`, `127.0.0.1`, `::1` into both vars on `app.config` import so local Ollama is not routed through `HTTP_PROXY`. Set `NO_PROXY` on startup for corporate networks. |
 | `OLLAMA_BASE_URL` | `http://localhost:11434/v1` | Ollama API endpoint |
 | `OLLAMA_CHAT_MODEL` | `gemma4:e2b` | LLM model for analysis |
 | `OLLAMA_EMBED_MODEL` | `qwen3-embedding:8b` | Embedding model |
@@ -237,14 +290,14 @@ Token budgets, JSON parse retries, JSON sampling temperature, and **HTTP retry**
 ### LLM model selection & API keys
 
 - **Analyze / Review** include a **Language model** control. The server sends your choice to Ollama or your OpenAI-compatible API as the chat model for that run.
-- **Auto-recommendation** uses **this server’s RAM** and `GET /api/tags` from Ollama (if `LLM_BACKEND=ollama`). If the app runs on a remote host, the hint describes the **server**, not your laptop.
-- **Catalogs:** `app/data/ollama_models.json` and `app/data/openai_models.json` (include Gemma 4–style tags such as `gemma4:e2b` for ~8GB-class hardware — heuristics only; pull models with `ollama pull …`).
-- **Hosted APIs:** Set `LLM_BACKEND=openai` and `OPENAI_API_KEY` (and optional `OPENAI_BASE_URL` for Groq, Azure OpenAI, etc.). Token usage scales with resumes and features — monitor spend on your provider.
+- **Auto-recommendation** uses **this server's RAM** and `GET /api/tags` from Ollama (if `LLM_BACKEND=ollama`). If the app runs on a remote host, the hint describes the **server**, not your laptop.
+- **Catalogs:** `app/data/ollama_models.json` and `app/data/openai_models.json` (include Gemma 4–style tags such as `gemma4:e2b` for ~8GB-class hardware — heuristics only; pull models with `ollama pull <tag>`).
+- **Hosted APIs:** Set `LLM_BACKEND=openai` and `OPENAI_API_KEY` (and optional `OPENAI_BASE_URL` for Groq, Azure OpenAI, etc.). Token usage scales with resumes and features — monitor spend on your provider's dashboard.
 - **Optional operator UI:** With `ENABLE_HOSTED_LLM_UI=true` and `LLM_USER_SETTINGS_PATH`, `POST /api/llm/settings` saves credentials to disk (gitignore local file). Prefer env vars on shared servers.
 
 ### Why there is no vector database
 
-This app scores **one JD against a small batch of resumes** per request. Similarity is **pairwise** (embeddings in memory, cosine + lexical blend). A dedicated vector DB helps **large-scale ANN search** (talent pools, cross-session “find similar resumes”), which is **not** in scope for the default OSS workflow. See the performance section in the LLM model plan for prefetch/caching instead of adding Qdrant/pgvector unless you add persistent corpus search as a product feature.
+This app scores **one JD against a small batch of resumes** per request. Similarity is **pairwise** (embeddings in memory, cosine + lexical blend). A dedicated vector DB helps **large-scale ANN searches** (thousands of candidates). For small batches, in-memory similarity is simpler and faster.
 
 ### Feature Flags
 
@@ -267,7 +320,7 @@ This app scores **one JD against a small batch of resumes** per request. Similar
 ## 📁 Project Structure
 
 ```
-idea/
+ai_resume_analyzer/
 ├── requirements.txt              # Python dependencies
 ├── package.json                  # Tailwind build (npm run build:css)
 ├── tailwind.config.js            # Tailwind theme (matches former Play CDN config)
@@ -348,7 +401,7 @@ idea/
         └── js/app.js             # Score rings, theme toggle, keyboard shortcuts
 ```
 
-Optional: **`CODEBASE_CONTEXT.md`** at the repo root — dense, LLM-oriented map of the project (generated/updated via the **init-codebase-context** skill: e.g. ask for `/init` or “refresh codebase context”). See `.cursor/skills/init-codebase-context/SKILL.md` and `AGENTS.md`.
+Optional: **`CODEBASE_CONTEXT.md`** at the repo root — dense, LLM-oriented map of the project (generated/updated via the **init-codebase-context** skill: e.g. ask for `/init` or "refresh codebase context").
 
 ---
 
@@ -397,14 +450,14 @@ JD Text ────────────────────────
 
 ### JD–resume text similarity (already cosine-based)
 
-The **similarity** dimension is computed in [`app/services/similarity.py`](app/services/similarity.py). It does **not** need a separate “add cosine similarity” feature—**cosine is already the core geometric measure** for both supported paths:
+The **similarity** dimension is computed in [`app/services/similarity.py`](app/services/similarity.py). It does **not** need a separate "add cosine similarity" feature—**cosine is already the standard**.
 
 | Path | What gets compared | Cosine role |
 |------|-------------------|-------------|
-| **Semantic** (when embeddings work: Ollama or OpenAI) | One embedding vector for the JD and one for the resume (text truncated per `SIMILARITY_EMBED_MAX_CHARS`) | **Cosine similarity** between the two vectors, blended with **Jaccard** token overlap (default 70% / 30%). |
-| **Lexical fallback** (no embedding) | TF–IDF vectors built from the JD + resume pair | **Cosine similarity** of TF–IDF vectors (`sklearn.metrics.pairwise.cosine_similarity`), blended with **Jaccard** (default 60% / 40%). |
+| **Semantic** (when embeddings work: Ollama or OpenAI) | One embedding vector for the JD and one for the resume (text truncated per `SIMILARITY_EMBED_MAX_CHARS`) | **Cosine similarity** between vectors |
+| **Lexical fallback** (no embedding) | TF–IDF vectors built from the JD + resume pair | **Cosine similarity** of TF–IDF vectors (`sklearn.metrics.pairwise.cosine_similarity`), blended with Jaccard / token overlap |
 
-Tuning blend weights or adding chunking would be an **optional product change** only after evaluation—see project discussions / plans on similarity. For most users, enabling **`qwen3-embedding:8b`** (or your configured embed model) is what turns on the semantic cosine path.
+Tuning blend weights or adding chunking would be an **optional product change** only after evaluation—see project discussions / plans on similarity. For most users, enabling **`qwen3-embedding:8b`** in Ollama solves this.
 
 ---
 
@@ -448,7 +501,7 @@ Tuning blend weights or adding chunking would be an **optional product change** 
 
 ## Acknowledgments
 
-Local Ollama chat/embedding defaults and parts of the model-catalog approach were informed by earlier personal prototyping (including a capstone-style CLI pipeline for resume–JD ranking). This repository does not bundle course hand-ins, graded artifacts, or third-party PDFs.
+Local Ollama chat/embedding defaults and parts of the model-catalog approach were informed by earlier personal prototyping (including a capstone-style CLI pipeline for resume–JD ranking). This app expands that into an enterprise-grade web experience.
 
 ---
 
@@ -466,12 +519,12 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). To report sec
 
 ## Deploying on Vercel (Hobby / free tier)
 
-Vercel supports **FastAPI with zero extra wiring** when a FastAPI instance named `app` is exported from a [supported entry file](https://vercel.com/docs/frameworks/backend/fastapi) (this repo uses root [`server.py`](server.py), which re-exports `app` from `app.main`).
+Vercel supports **FastAPI with zero extra wiring** when a FastAPI instance named `app` is exported from a [supported entry file](https://vercel.com/docs/frameworks/backend/fastapi) (this repo uses `server.py`).
 
 1. Push the repository to GitHub (or GitLab / Bitbucket).
 2. Import the project in the [Vercel dashboard](https://vercel.com/new) and connect the repo.
 3. Set **environment variables** in the Vercel project (same names as `.env.example` where applicable). **Important:**
-   - **`OLLAMA_BASE_URL`**: The app cannot reach **localhost** from Vercel’s cloud. Point this to an **OpenAI-compatible HTTPS endpoint** (e.g. a hosted model API, or a secure tunnel to a machine running Ollama). Without a reachable LLM, the app still runs **deterministic** scoring; AI features stay off or degraded.
+   - **`OLLAMA_BASE_URL`**: The app cannot reach **localhost** from Vercel's cloud. Point this to an **OpenAI-compatible HTTPS endpoint** (e.g. a hosted model API, or a secure tunnel to a machine on your network).
    - **`CORS_ORIGINS`**: Include your production site origin (e.g. `https://your-app.vercel.app`).
 4. Deploy. CLI option: install the [Vercel CLI](https://vercel.com/docs/cli) and run `vercel` from the repo root.
 
